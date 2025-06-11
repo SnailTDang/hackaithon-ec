@@ -1,0 +1,19 @@
+{
+    "extends": "../nextjs-app/tsconfig.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "../",
+        "module": "commonjs",
+        "target": "ES2020",
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "allowJs": false,
+        "strict": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "types": ["node", "./types/fastify-log.d.ts"]
+    },
+    "include": ["./**/*.ts", "../lib/**/*.ts"],
+    "exclude": ["node_modules", "dist"]
+}

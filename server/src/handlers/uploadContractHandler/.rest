@@ -1,0 +1,31 @@
+//get list
+GET http://localhost:3009/api/contract
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+ "contractName": "New Contract",
+ "hightlighted": "Some highlighted text",
+ "file": {
+ "name": "example.pdf",
+ "type": "application/pdf"
+ }
+}
+
+// get detail
+GET http://localhost:3009/api/contract?id={{contractId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+ "contractName": "New Contract",
+ "hightlighted": "Some highlighted text",
+ "file": {
+ "name": "example.pdf",
+ "type": "application/pdf"
+ }
+}
+
+// Example of setting the contractId variable
+@contractId = 68429d402b23125ec6007d32
+@token = HuyVV12

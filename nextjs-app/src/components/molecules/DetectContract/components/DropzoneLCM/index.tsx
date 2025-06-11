@@ -1,0 +1,37 @@
+import React, { FC } from 'react'
+import { Box, Button, Typography } from '@mui/material'
+
+type DropzoneLCMProps = {
+    onDrop: (file: File) => void
+}
+
+const DropzoneLCM: FC<DropzoneLCMProps> = ({ onDrop }) => {
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (file) onDrop(file)
+    }
+
+    return (
+        <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            p={2}
+            border={1}
+            borderColor="#cccccc"
+            borderRadius={2}
+            sx={{ background: '#fafafa', minHeight: 150 }}
+        >
+            <Typography variant="h6" mb={2}>
+                Upload LCM Checklist File
+            </Typography>
+            <Button variant="contained" component="label" color="warning">
+                Select File (.docx)
+                <input type="file" accept=".docx" hidden onChange={handleFileChange} />
+            </Button>
+        </Box>
+    )
+}
+
+export default DropzoneLCM

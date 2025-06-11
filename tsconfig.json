@@ -1,0 +1,4 @@
+{
+    "files": [],
+    "references": [{ "path": "./nextjs-app/tsconfig.json" }, { "path": "./server/tsconfig.json" }]
+}
