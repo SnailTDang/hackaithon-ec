@@ -1,5 +1,4 @@
 /** @type {import('next').NextConfig} */
-const isDev = process.env.NODE_ENV === 'development'
 
 const nextConfig = {
     reactStrictMode: true,
@@ -10,12 +9,7 @@ const nextConfig = {
     env: {
         // Example: API_URL: process.env.NEXT_PUBLIC_API_URL
     },
-    i18n: {
-        defaultLocale: 'vi',
-        locales: ['en', 'vi'],
-    },
     async headers() {
-        if (!isDev) return []
         return [
             {
                 source: '/(.*)',

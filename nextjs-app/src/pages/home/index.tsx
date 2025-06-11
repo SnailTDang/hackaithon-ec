@@ -1,4 +1,3 @@
-'use client'
 import React from 'react'
 import { Container, Typography, Box, Button } from '@mui/material'
 import Link from 'next/link'
