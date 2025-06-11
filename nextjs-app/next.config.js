@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const isDev = process.env.NODE_ENV === 'development'
 
 const nextConfig = {
     reactStrictMode: true,
@@ -10,6 +11,7 @@ const nextConfig = {
         // Example: API_URL: process.env.NEXT_PUBLIC_API_URL
     },
     async headers() {
+        if (!isDev) return []
         return [
             {
                 source: '/(.*)',

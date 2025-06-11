@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { ContractModel } from '../../models/contract'
-import { getPaginationMeta } from '../../utils/pagination'
+import { getPaginationMeta } from '../../shared/utils/pagination'
 
 // Query params interface for better type safety
 interface QueryParams {

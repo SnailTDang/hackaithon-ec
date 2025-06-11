@@ -5,7 +5,7 @@ import fs from 'fs'
 import path from 'path'
 import { ContractModel } from '../../models/contract'
 import { uid } from 'uid'
-import mapFileType from '../../utils/mapFileType'
+import mapFileType from '../../shared/utils/mapFileType'
 
 const SERVER_URL = 'http://localhost:3000/'
 

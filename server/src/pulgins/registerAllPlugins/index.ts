@@ -4,7 +4,7 @@ import fastifyHelmet from '@fastify/helmet'
 import fastifyCookie from '@fastify/cookie'
 import fastifySession from '@fastify/session'
 import fastifyFormbody from '@fastify/formbody'
-import connectToDatabase from '../../utils/connectToDatabase'
+import connectToDatabase from '../../shared/utils/connectToDatabase'
 import { api } from '../api'
 import { nextApp } from '../nextApp'
 
