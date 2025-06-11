@@ -53,7 +53,7 @@ export function useNDAChecklist(): UseNDAChecklistReturn {
         setContractFile(e.target.files?.[0] ?? null)
     }
 
-    function parseChecklistExcel(arrayBuffer: ArrayBuffer): ChecklistRow[] {
+    const parseChecklistExcel = (arrayBuffer: ArrayBuffer): ChecklistRow[] => {
         const workbook = XLSX.read(arrayBuffer, { type: 'array' })
         const sheet = workbook.Sheets[workbook.SheetNames[0]]
         const json: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 })
@@ -72,6 +72,7 @@ export function useNDAChecklist(): UseNDAChecklistReturn {
                 frequency: (r[idxFreq] || '').toString().trim(),
             }))
     }
+
     const handleChecklistUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] ?? null
         setChecklistFile(file)

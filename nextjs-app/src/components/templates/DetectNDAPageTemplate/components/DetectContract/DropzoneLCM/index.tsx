@@ -27,8 +27,8 @@ const DropzoneLCM: FC<DropzoneLCMProps> = ({ onDrop }) => {
                 Upload LCM Checklist File
             </Typography>
             <Button variant="contained" component="label" color="warning">
-                Select File (.docx)
-                <input type="file" accept=".docx" hidden onChange={handleFileChange} />
+                Select File (.xlsx)
+                <input type="file" accept=".xlsx" hidden onChange={handleFileChange} />
             </Button>
         </Box>
     )

@@ -1,5 +1,5 @@
 import React from 'react'
-import DetectContract from '@/components/molecules/DetectContract'
+import DetectContract from '@/components/templates/DetectNDAPageTemplate/components/DetectContract'
 import CommonDialog from '@/components/molecules/Dialog'
 import TableContent from '@/components/molecules/TableContent'
 import { Button, colors, Container } from '@mui/material'

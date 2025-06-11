@@ -1,7 +1,7 @@
 import React from 'react'
 import { Container, Tabs, Tab, Box } from '@mui/material'
 import { useState } from 'react'
-import DetectContract from '@/components/molecules/DetectContract'
+import DetectContract from '@/components/templates/DetectNDAPageTemplate/components/DetectContract'
 
 const Template = () => {
     return (

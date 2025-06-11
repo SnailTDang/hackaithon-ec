@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from 'react'
+import * as XLSX from 'xlsx'
+
 import {
-    extractTextFromLcm,
     extractTextFromImage,
     extractTextFromDocx,
     extractTextFromPdf,
@@ -8,6 +10,14 @@ import {
     handlePreviewContract,
 } from '../hanldeDetect'
 import { uploadFile } from '../uploadFile'
+import { buildPromptChecklist } from 'shared/constants/prompts'
+import axios from 'axios'
+
+type ChecklistRow = {
+    item: string
+    standard: string
+    frequency: string
+}
 
 export const useDetectContract = () => {
     const [contractFile, setContractFile] = useState<File | null>(null)
@@ -17,12 +27,11 @@ export const useDetectContract = () => {
     const [isProcessing, setIsProcessing] = useState(false)
     const [error, setError] = useState('')
     const [contractImportantText, setContractImportantText] = useState(null)
-    const [lcmChecklistResults, setLcmChecklistResults] = useState<Record<string, unknown> | null>(
-        null,
-    )
+    const [lcmChecklistResults, setLcmChecklistResults] = useState<any[]>([])
     const [previewDialog, setPreviewDialog] = useState({ open: false, content: '', title: '' })
     const [uploadError, setUploadError] = useState('')
     const [uploadSuccess, setUploadSuccess] = useState('')
+    const [checklistRows, setChecklistRows] = useState<any[][]>([])
 
     const handleUploadContract = (file: File) => {
         if (file) {
@@ -73,13 +82,73 @@ export const useDetectContract = () => {
         setError('')
         setIsProcessing(true)
         setLcmFile(file)
+        if (file) {
+            file.arrayBuffer().then((arrBuf) => {
+                const wb = XLSX.read(arrBuf, { type: 'array' })
+                const sheet = wb.Sheets[wb.SheetNames[0]]
+                const json: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 })
+                setChecklistRows(json)
+            })
+        }
+        setIsProcessing(false)
+    }
+
+    const parseChecklistExcel = (arrayBuffer: ArrayBuffer): ChecklistRow[] => {
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' })
+        const sheet = workbook.Sheets[workbook.SheetNames[0]]
+        const json: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 })
+
+        const headers = (json[0] || []).map((h: any) => (h || '').toLowerCase())
+        const idxItem = headers.findIndex((v: string) => v.includes('item'))
+        const idxStandard = headers.findIndex((v: string) => v.includes('standard'))
+        const idxFreq = headers.findIndex((v: string) => v.includes('frequency'))
+
+        return json
+            .slice(1)
+            .filter((r: any[]) => r[idxItem] && r[idxStandard])
+            .map((r: any[]) => ({
+                item: r[idxItem],
+                standard: r[idxStandard],
+                frequency: (r[idxFreq] || '').toString().trim(),
+            }))
+    }
+
+    const handleAnalyzeChecklist = async () => {
+        setError('')
+        setLcmChecklistResults([])
+        setIsProcessing(true)
+        if (!contractText || !lcmFile) {
+            setError('Vui lòng chọn đủ 2 file')
+            return
+        }
         try {
-            await extractTextFromLcm(file, setLcmChecklist)
-        } catch (err: unknown) {
-            const errorMsg = err instanceof Error ? err.message : String(err)
-            setError(`Error processing LCM checklist file: ${errorMsg}`)
-        } finally {
+            const arrayBuffer = await lcmFile.arrayBuffer()
+            const checklist = parseChecklistExcel(arrayBuffer)
+            const checklistTable = checklist
+                .map(
+                    (r: any, i: number) =>
+                        `${i + 1}. Item: ${r.item}\nStandard terms & conditions: ${r.standard}\nFrequency of Terms in the NDA: ${r.frequency}`,
+                )
+                .join('\n')
+            const prompt = buildPromptChecklist(contractText, checklistTable)
+            const res = await axios.post('/api/analyze-contract', {
+                model: 'deepseek/deepseek-r1-0528:free',
+                messages: [{ role: 'user', content: prompt }],
+                temperature: 0.1,
+            })
+            const content = res.data.choices?.[0]?.message?.content ?? ''
+            let output: any[] = []
+            try {
+                output = JSON.parse(content)
+            } catch {
+                setError('Không parse được kết quả JSON!')
+                return
+            }
+            setLcmChecklistResults(output)
             setIsProcessing(false)
+        } catch (e: any) {
+            setIsProcessing(false)
+            setError('Lỗi: ' + (e?.message || e))
         }
     }
 
@@ -98,19 +167,6 @@ export const useDetectContract = () => {
                 setIsProcessing(false)
             },
         )
-    }
-
-    const handleChecklistComparison = () => {
-        if (!contractImportantText || !lcmChecklist) return
-        setIsProcessing(true)
-        // extractChecklistComparison(
-        //     contractImportantText,
-        //     lcmChecklist,
-        //     setLcmChecklistResults,
-        //     () => {
-        //         setIsProcessing(false)
-        //     },
-        // )
     }
 
     return {
@@ -140,5 +196,6 @@ export const useDetectContract = () => {
         handleContractDrop,
         handleLcmDrop,
         processContractText,
+        handleAnalyzeChecklist,
     }
 }

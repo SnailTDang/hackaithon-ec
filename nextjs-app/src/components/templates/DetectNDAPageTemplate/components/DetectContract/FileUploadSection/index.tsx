@@ -22,6 +22,7 @@ interface FileUploadSectionProps {
     onPreviewClick: (content: string, title: string) => void
     isProcessing: boolean
     onAnalyseContract: () => void
+    handleAnalyzeChecklist?: () => void
 }
 
 const FileUploadSection = ({
@@ -36,6 +37,7 @@ const FileUploadSection = ({
     onLcmDelete,
     onPreviewClick,
     onAnalyseContract,
+    handleAnalyzeChecklist,
 }: FileUploadSectionProps) => {
     const getFileIcon = (file: File | null) => {
         if (!file) return <Description />
@@ -53,7 +55,7 @@ const FileUploadSection = ({
 
     return (
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, mb: 4 }}>
-            <Box sx={{ flex: 1 }}>
+            <Box sx={{ flex: 1, maxWidth: '50%' }}>
                 <DropzoneContract onDrop={onContractDrop} isProcessing={isProcessing} />
                 {contractFile && (
                     <Box
@@ -121,7 +123,7 @@ const FileUploadSection = ({
                     </Box>
                 )}
             </Box>
-            <Box sx={{ flex: 1 }}>
+            <Box sx={{ flex: 1, maxWidth: '50%' }}>
                 <DropzoneLCM onDrop={onLcmDrop} />
                 {lcmFile && (
                     <Box
@@ -183,7 +185,7 @@ const FileUploadSection = ({
                                     sx={{ mr: 0 }}
                                     variant="contained"
                                     color="primary"
-                                    onClick={onAnalyseContract}
+                                    onClick={handleAnalyzeChecklist}
                                     disabled={isProcessing || !lcmFile}
                                 >
                                     Phân tích Checklist
