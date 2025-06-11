@@ -6,10 +6,10 @@ import {
     extractTextFromPdf,
     extractContractInfo,
     handlePreviewContract,
-} from '../module/hanldeDetect'
-import { uploadFile } from '../module/uploadFile'
+} from '../hanldeDetect'
+import { uploadFile } from '../uploadFile'
 
-export function useDetectContract() {
+export const useDetectContract = () => {
     const [contractFile, setContractFile] = useState<File | null>(null)
     const [lcmFile, setLcmFile] = useState<File | null>(null)
     const [contractText, setContractText] = useState('')
@@ -52,7 +52,6 @@ export function useDetectContract() {
         setIsProcessing(true)
         setContractFile(file)
         try {
-            // handleUploadContract(file)
             if (file.type.includes('image')) {
                 await extractTextFromImage(file, setContractText, () => {})
             } else if (file.type === 'application/pdf') {
@@ -101,18 +100,18 @@ export function useDetectContract() {
         )
     }
 
-    // useEffect(() => {
-    //     if (!contractImportantText || !lcmChecklist) return
-    //     setIsProcessing(true)
-    //     // extractChecklistComparison(
-    //     //     contractImportantText,
-    //     //     lcmChecklist,
-    //     //     setLcmChecklistResults,
-    //     //     () => {
-    //     //         setIsProcessing(false)
-    //     //     },
-    //     // )
-    // }, [contractImportantText, lcmChecklist])
+    const handleChecklistComparison = () => {
+        if (!contractImportantText || !lcmChecklist) return
+        setIsProcessing(true)
+        // extractChecklistComparison(
+        //     contractImportantText,
+        //     lcmChecklist,
+        //     setLcmChecklistResults,
+        //     () => {
+        //         setIsProcessing(false)
+        //     },
+        // )
+    }
 
     return {
         contractFile,

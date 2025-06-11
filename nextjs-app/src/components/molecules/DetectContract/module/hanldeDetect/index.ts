@@ -120,3 +120,31 @@ export const handlePreviewContract = async (
         console.error('Error extracting important contract information:', error)
     }
 }
+
+export const analyzeChecklistContract = async (
+    contractText: string,
+    setChecklistResults: (json: any) => void,
+    showToast: (msg: string) => void,
+) => {
+    try {
+        // const promptDelivery = MAIN_PROMPT_DELIVERY + '\n\n' + contractText
+        const prompt = MAIN_PROMPT + '\n\n' + contractText
+        const data = await AnalyzeContract(prompt)
+        if (!data) {
+            showToast('Failed to analyze contract')
+            return
+        }
+        let jsonContent: any
+        try {
+            jsonContent = typeof data === 'string' ? JSON.parse(data) : data
+        } catch (error) {
+            console.error('Cannot parse contract analysis result to JSON:', error)
+            showToast('Analysis result is not valid JSON')
+            return
+        }
+        setChecklistResults(jsonContent)
+        showToast('Contract analyzed')
+    } catch (error) {
+        console.error('Error extracting important contract information:', error)
+    }
+}

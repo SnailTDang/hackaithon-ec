@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export default function HomePage() {
     return (
-        <Container maxWidth="sm" sx={{ mt: 8 }}>
+        <Container maxWidth="md" sx={{ mt: 8 }}>
             <Box
                 display="flex"
                 flexDirection="column"
@@ -17,10 +17,10 @@ export default function HomePage() {
                 p={4}
             >
                 <Typography variant="h3" component="h1" gutterBottom>
-                    Welcome to Hackaithon!
+                    Welcome to EC Synergy - Hackaithon!
                 </Typography>
                 <Typography variant="h6" color="text.secondary" align="center" gutterBottom>
-                    Start building your Next.js + Material UI project.
+                    Start analyze your smart contracts with our AI-powered tools.
                 </Typography>
                 <Link href="/analyst" passHref prefetch={false}>
                     <Button variant="contained" color="primary" size="large" sx={{ mt: 3 }}>

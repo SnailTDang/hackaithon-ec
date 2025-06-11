@@ -160,6 +160,49 @@ export const MAIN_PROMPT2 = `You are an expert contract analyst specializing in 
 ## Contract Data:
 `
 
+export const buildPromptChecklist = (checklistTable: string, contractText: string): string => {
+    return `
+Bạn là chuyên gia kiểm tra hợp đồng pháp lý.  
+Nhiệm vụ: Đối chiếu hợp đồng với checklist dưới đây và trả về duy nhất một mảng JSON.  
+**Yêu cầu về JSON**:  
+Mỗi phần tử (item) là một object với các trường như sau:
+
+{
+  "item": "",
+  "standard": "",
+  "frequency": "Yes|No",
+  "found_text": "",                  // Đoạn văn bản liên quan nhất trong hợp đồng. Nếu không có, ghi rõ "Không tìm thấy trong hợp đồng."
+  "review_result": "OK|NOK|Null",    // Đánh giá kết quả kiểm tra
+  "suggest": ""                      // Phân tích rõ vì sao đạt/không đạt và gợi ý chỉnh sửa, ví dụ: “Đầy đủ tên, địa chỉ, người đại diện của các bên.”, “Thiếu quy định xác nhận lại bằng văn bản nếu tiết lộ miệng. thêm thông tin”
+}
+
+**Tiêu chí đánh giá:**
+1. Nếu Frequency = Yes (bắt buộc phải có):
+   - Nếu không có trong hợp đồng: review_result = "NOK", suggest = "Bổ sung điều khoản này vào hợp đồng."
+   - Nếu có nhưng không khớp Standard terms & conditions: review_result = "NOK", suggest = "Chỉnh sửa cho đúng: ..." (ghi cụ thể theo thực tế)
+   - Nếu có và khớp: review_result = "OK", suggest = ""
+2. Nếu Frequency = No (không bắt buộc):
+   - Nếu không có trong hợp đồng: review_result = Null, suggest = ""
+   - Nếu có: so khớp ngữ nghĩa. Nếu khớp: "OK", nếu không: "NOK" (và suggest)
+3. Nếu Standard terms & conditions = "Not mentioned":
+   - Nếu tìm thấy trong hợp đồng: review_result = "NOK", suggest = "Xoá/loại bỏ điều khoản này khỏi hợp đồng."
+   - Nếu không thấy: review_result = "OK" hoặc Null (tuỳ frequency), suggest = ""
+   
+**Bắt buộc:**
+- "found_text" phải lấy đúng đoạn văn bản thực tế trong hợp đồng, ưu tiên đầy đủ nhất.
+- "suggest" phải viết rõ vì sao lại đánh giá như vậy, sát với thực tế từng case (ví dụ: “Chỉ giới hạn tiết lộ cho người đã ký NDA, chưa đề cập trường hợp bắt buộc theo luật.”, “Điều khoản hiệu lực rõ ràng, đáp ứng yêu cầu checklist.” v.v.).
+- Nếu NOK thì bắt buộc phải có suggest thực tế, cụ thể (nếu là thiếu thì ghi rõ cần bổ sung điều khoản nào, nếu lệch ngữ nghĩa thì ghi rõ nên chỉnh gì).
+
+**Trả về**: Chỉ duy nhất một mảng JSON đúng structure trên. Không giải thích gì thêm ngoài JSON.
+
+Checklist:
+${checklistTable}
+
+Nội dung hợp đồng:
+${contractText}
+`
+}
+
 export interface Section {
     title: string
     content: string
