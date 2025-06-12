@@ -53,21 +53,7 @@ export default async function uploadContractHandler(
         req.log.info({ filename: file.filename, mimetype: file.mimetype }, 'Received file')
 
         // Extract fields from req.body (cast to Record<string, any>)
-        let hightlighted = ''
-        if (typeof req.body === 'object' && req.body !== null) {
-            hightlighted = (req.body as any).hightlighted || ''
-        } else if (typeof file.fields === 'object' && file.fields !== null) {
-            // Fastify multipart: fields are available on file.fields as Multipart or Multipart[]
-            const getFieldValue = (field: any) => {
-                if (Array.isArray(field)) {
-                    return field[0]?.value || ''
-                } else if (field && typeof field === 'object' && 'value' in field) {
-                    return field.value || ''
-                }
-                return ''
-            }
-            hightlighted = getFieldValue(file.fields.hightlighted)
-        }
+        // hightlighted is no longer used in the model, so skip extraction
 
         // Generate a unique filename: contractId_timespan.ext
         const ext = path.extname(file.filename)
@@ -98,12 +84,16 @@ export default async function uploadContractHandler(
             uploadedAt: new Date(),
         }
 
+        console.log('File results', req.body)
+
         // Save contract to DB after file is saved
         const tempContract = await ContractModel.create({
             contractName: file.filename || 'Untitled',
-            hightlighted: hightlighted || '',
             file: fileInfo,
             delFlg: false,
+            // Remove hightlighted: hightlighted || '',
+            // Add contractAnalystResults as null by default (optional)
+            contractAnalystResults: null,
         })
         console.log('Contract created successfully:', tempContract._id)
         req.log.info({ contractId: tempContract._id }, 'Contract created successfully')

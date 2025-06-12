@@ -18,6 +18,7 @@ import {
 
 export const ChecklistResultsDisplay = ({
     result,
+    disabledButton,
     handleDownloadWordReport,
     handleDownloadExcel,
 }) => {
@@ -28,7 +29,12 @@ export const ChecklistResultsDisplay = ({
                     <Button variant="contained" color="success" onClick={handleDownloadWordReport}>
                         Download Word Report
                     </Button>
-                    <Button variant="contained" color="info" onClick={handleDownloadExcel}>
+                    <Button
+                        variant="contained"
+                        color="info"
+                        disabled={disabledButton}
+                        onClick={handleDownloadExcel}
+                    >
                         Download Excel Report
                     </Button>
                 </Stack>

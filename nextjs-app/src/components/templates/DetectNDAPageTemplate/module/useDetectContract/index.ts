@@ -27,7 +27,7 @@ export const useDetectContract = () => {
     const [lcmChecklist, setLcmChecklist] = useState('')
     const [isProcessing, setIsProcessing] = useState(false)
     const [error, setError] = useState('')
-    const [contractImportantText, setContractImportantText] = useState<any>(null)
+    const [contractImportantText, setContractImportantText] = useState<any[] | null>(null)
     const [lcmChecklistResults, setLcmChecklistResults] = useState<any[]>([])
     const [previewDialog, setPreviewDialog] = useState<{
         open: boolean
@@ -55,10 +55,12 @@ export const useDetectContract = () => {
             const data = {
                 file: file,
                 contractAnalystResults: {
-                    contractResult: contractImportantText,
-                    checklistResult: lcmChecklistResults,
+                    contractResult: contractImportantText || null,
+                    checklistResult: lcmChecklistResults.length ? lcmChecklistResults : null,
                 },
             }
+
+            console.log(lcmChecklistResults)
 
             console.log(file)
             setContractFile(file)
@@ -88,8 +90,8 @@ export const useDetectContract = () => {
         const data = {
             file: contractFile,
             contractAnalystResults: {
-                contractResult: contractImportantText,
-                checklistResult: lcmChecklistResults,
+                contractResult: contractImportantText || null,
+                checklistResult: lcmChecklistResults.length ? lcmChecklistResults : null,
             },
         }
 
@@ -296,7 +298,7 @@ export const useDetectContract = () => {
     }
 
     const handleDownloadExcel = () => {
-        if (!contractImportantText.length || !checklistRows.length) return
+        if (!contractImportantText || !contractImportantText.length || !checklistRows.length) return
 
         // Tạo bản sao (deep clone) để không ảnh hưởng state
         const outRows = checklistRows.map((row) => [...row])
@@ -316,7 +318,7 @@ export const useDetectContract = () => {
         for (let i = 1; i < outRows.length; ++i) {
             const itemCell = (outRows[i][idxItem] || '').toString().trim()
             // Tìm review theo item (nếu nhiều item trùng nhau thì map đúng thứ tự)
-            const review = contractImportantText.find((r) => r.item.trim() === itemCell)
+            const review = contractImportantText.find((r) => r.item?.trim() === itemCell)
             outRows[i][rrIdx] = review?.review_result || ''
         }
 
