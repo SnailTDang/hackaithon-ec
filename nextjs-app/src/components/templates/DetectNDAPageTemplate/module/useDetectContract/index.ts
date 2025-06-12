@@ -98,7 +98,8 @@ export const useDetectContract = () => {
         const sheet = workbook.Sheets[workbook.SheetNames[0]]
         const json: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 })
 
-        const headers = (json[0] || []).map((h: any) => (h || '').toLowerCase())
+        // const headers = (json[0] || []).map((h: any) => (h || '').toLowerCase())
+        const headers = (json[2] || []).map((h: any) => (h || '').toLowerCase())
         const idxItem = headers.findIndex((v: string) => v.includes('item'))
         const idxStandard = headers.findIndex((v: string) => v.includes('standard'))
         const idxFreq = headers.findIndex((v: string) => v.includes('frequency'))
@@ -130,21 +131,28 @@ export const useDetectContract = () => {
                         `${i + 1}. Item: ${r.item}\nStandard terms & conditions: ${r.standard}\nFrequency of Terms in the NDA: ${r.frequency}`,
                 )
                 .join('\n')
-            const prompt = buildPromptChecklist(contractText, checklistTable)
+            const prompt = buildPromptChecklist(checklistTable, contractText)
             const res = await axios.post('/api/analyze-contract', {
                 model: 'deepseek/deepseek-r1-0528:free',
                 messages: [{ role: 'user', content: prompt }],
                 temperature: 0.1,
             })
             const content = res.data.choices?.[0]?.message?.content ?? ''
-            let output: any[] = []
+            let jsonContent: any[] = []
             try {
-                output = JSON.parse(content)
+                // Remove leading ```json or ``` if present before parsing
+                let cleanedData = content
+                if (typeof cleanedData === 'string') {
+                    cleanedData = cleanedData.replace(/^```json|^```/i, '').trim()
+                    // Remove trailing ``` if present
+                    cleanedData = cleanedData.replace(/```$/, '').trim()
+                }
+                jsonContent = JSON.parse(cleanedData)
             } catch {
                 setError('Không parse được kết quả JSON!')
                 return
             }
-            setLcmChecklistResults(output)
+            setLcmChecklistResults(jsonContent)
             setIsProcessing(false)
         } catch (e: any) {
             setIsProcessing(false)

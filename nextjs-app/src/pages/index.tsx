@@ -22,7 +22,7 @@ export default function HomePage() {
                 <Typography variant="h6" color="text.secondary" align="center" gutterBottom>
                     Start analyze your smart contracts with our AI-powered tools.
                 </Typography>
-                <Link href="/analyst" passHref prefetch={false}>
+                <Link href="/nda-manager" passHref prefetch={false}>
                     <Button variant="contained" color="primary" size="large" sx={{ mt: 3 }}>
                         Get Started
                     </Button>

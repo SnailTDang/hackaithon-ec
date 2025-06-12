@@ -3,7 +3,11 @@ import axios from 'axios'
 import Tesseract from 'tesseract.js'
 import mammoth from 'mammoth'
 import * as pdfjsLib from 'pdfjs-dist/build/pdf'
-import { MAIN_PROMPT, MAIN_PROMPT_DELIVERY } from 'shared/constants/prompts'
+import {
+    buildPromptDetectContract,
+    MAIN_PROMPT,
+    MAIN_PROMPT_DELIVERY,
+} from 'shared/constants/prompts'
 
 // Ensure axios uses the same origin (port 3000) for API calls
 axios.defaults.baseURL = ''
@@ -72,7 +76,7 @@ export const extractContractInfo = async (
 ) => {
     try {
         // const promptDelivery = MAIN_PROMPT_DELIVERY + '\n\n' + contractText
-        const prompt = MAIN_PROMPT + '\n\n' + contractText
+        const prompt = buildPromptDetectContract(contractText)
         const data = await AnalyzeContract(prompt)
         if (!data) {
             showToast('Failed to analyze contract')
@@ -80,7 +84,14 @@ export const extractContractInfo = async (
         }
         let jsonContent: any
         try {
-            jsonContent = typeof data === 'string' ? JSON.parse(data) : data
+            // Remove leading ```json or ``` if present before parsing
+            let cleanedData = data
+            if (typeof cleanedData === 'string') {
+                cleanedData = cleanedData.replace(/^```json|^```/i, '').trim()
+                // Remove trailing ``` if present
+                cleanedData = cleanedData.replace(/```$/, '').trim()
+            }
+            jsonContent = JSON.parse(cleanedData)
         } catch (error) {
             console.error('Cannot parse contract analysis result to JSON:', error)
             showToast('Analysis result is not valid JSON')
@@ -108,41 +119,20 @@ export const handlePreviewContract = async (
         }
         let jsonContent: any
         try {
-            jsonContent = typeof data === 'string' ? JSON.parse(data) : data
+            // Remove leading ```json or ``` if present before parsing
+            let cleanedData = data
+            if (typeof cleanedData === 'string') {
+                cleanedData = cleanedData.replace(/^```json|^```/i, '').trim()
+                // Remove trailing ``` if present
+                cleanedData = cleanedData.replace(/```$/, '').trim()
+            }
+            jsonContent = JSON.parse(cleanedData)
         } catch (error) {
             console.error('Cannot parse contract analysis result to JSON:', error)
             showToast('Analysis result is not valid JSON')
             return
         }
         setContractImportantText(jsonContent)
-        showToast('Contract analyzed')
-    } catch (error) {
-        console.error('Error extracting important contract information:', error)
-    }
-}
-
-export const analyzeChecklistContract = async (
-    contractText: string,
-    setChecklistResults: (json: any) => void,
-    showToast: (msg: string) => void,
-) => {
-    try {
-        // const promptDelivery = MAIN_PROMPT_DELIVERY + '\n\n' + contractText
-        const prompt = MAIN_PROMPT + '\n\n' + contractText
-        const data = await AnalyzeContract(prompt)
-        if (!data) {
-            showToast('Failed to analyze contract')
-            return
-        }
-        let jsonContent: any
-        try {
-            jsonContent = typeof data === 'string' ? JSON.parse(data) : data
-        } catch (error) {
-            console.error('Cannot parse contract analysis result to JSON:', error)
-            showToast('Analysis result is not valid JSON')
-            return
-        }
-        setChecklistResults(jsonContent)
         showToast('Contract analyzed')
     } catch (error) {
         console.error('Error extracting important contract information:', error)
