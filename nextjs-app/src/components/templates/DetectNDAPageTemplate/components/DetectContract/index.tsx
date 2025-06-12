@@ -73,13 +73,11 @@ const DetectContract = () => {
                                 sx={{ px: 2 }}
                                 size="medium"
                                 onClick={handleSaveButton}
-                                disabled={
-                                    !contractFile &&
-                                    !lcmChecklistResults.length &&
-                                    !contractImportantText
-                                }
+                                disabled={!contractFile || isProcessing}
                             >
-                                Save Analyst Results
+                                {!contractImportantText || !lcmChecklistResults
+                                    ? 'Save File'
+                                    : 'Save Analyst Results'}
                             </Button>
                         </Box>
                     </Toolbar>
@@ -122,6 +120,11 @@ const DetectContract = () => {
                     <Box sx={{ display: tab === 1 ? 'block' : 'none' }}>
                         <ChecklistResultsDisplay
                             result={lcmChecklistResults}
+                            disabledButton={
+                                isProcessing ||
+                                !lcmChecklistResults.length ||
+                                !contractImportantText?.length
+                            }
                             handleDownloadExcel={handleDownloadExcel}
                             handleDownloadWordReport={handleDownloadWordReport}
                         />

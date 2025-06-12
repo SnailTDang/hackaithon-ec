@@ -3,9 +3,10 @@ import { Box, Button, Typography } from '@mui/material'
 
 type DropzoneLCMProps = {
     onDrop: (file: File) => void
+    isProcessing: boolean
 }
 
-const DropzoneLCM: FC<DropzoneLCMProps> = ({ onDrop }) => {
+const DropzoneLCM: FC<DropzoneLCMProps> = ({ onDrop, isProcessing }) => {
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
         if (file) onDrop(file)
@@ -26,7 +27,7 @@ const DropzoneLCM: FC<DropzoneLCMProps> = ({ onDrop }) => {
             <Typography variant="h6" mb={2}>
                 Upload LCM Checklist File
             </Typography>
-            <Button variant="contained" component="label" color="warning">
+            <Button variant="contained" component="label" color="warning" disabled={isProcessing}>
                 Select File (.xlsx)
                 <input type="file" accept=".xlsx" hidden onChange={handleFileChange} />
             </Button>

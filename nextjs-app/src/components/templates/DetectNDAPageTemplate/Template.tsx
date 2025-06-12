@@ -1,6 +1,5 @@
 import React from 'react'
-import { Container, Tabs, Tab, Box } from '@mui/material'
-import { useState } from 'react'
+import { Container } from '@mui/material'
 import DetectContract from '@/components/templates/DetectNDAPageTemplate/components/DetectContract'
 
 const Template = () => {
