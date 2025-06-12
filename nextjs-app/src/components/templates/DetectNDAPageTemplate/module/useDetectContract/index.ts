@@ -10,38 +10,65 @@ import {
     handlePreviewContract,
 } from '../hanldeDetect'
 import { uploadFile } from '../uploadFile'
-import { buildPromptChecklist } from 'shared/constants/prompts'
+import { buildPromptChecklist } from '@/shared/constants/prompts'
 import axios from 'axios'
+import { useRouter } from 'next/navigation'
 
 type ChecklistRow = {
     item: string
     standard: string
     frequency: string
 }
-
 export const useDetectContract = () => {
+    const router = useRouter()
     const [contractFile, setContractFile] = useState<File | null>(null)
     const [lcmFile, setLcmFile] = useState<File | null>(null)
     const [contractText, setContractText] = useState('')
     const [lcmChecklist, setLcmChecklist] = useState('')
     const [isProcessing, setIsProcessing] = useState(false)
     const [error, setError] = useState('')
-    const [contractImportantText, setContractImportantText] = useState(null)
+    const [contractImportantText, setContractImportantText] = useState<any>(null)
     const [lcmChecklistResults, setLcmChecklistResults] = useState<any[]>([])
-    const [previewDialog, setPreviewDialog] = useState({ open: false, content: '', title: '' })
+    const [previewDialog, setPreviewDialog] = useState<{
+        open: boolean
+        content: File | null
+        title: string
+    }>({ open: false, content: null, title: '' })
     const [uploadError, setUploadError] = useState('')
     const [uploadSuccess, setUploadSuccess] = useState('')
     const [checklistRows, setChecklistRows] = useState<any[][]>([])
 
+    const onContractDelete = () => {
+        setContractFile(null)
+        setContractText('')
+        setContractImportantText(null)
+    }
+
+    const onLcmDelete = () => {
+        setLcmFile(null)
+        setLcmChecklist('')
+        setLcmChecklistResults([])
+    }
+
     const handleUploadContract = (file: File) => {
         if (file) {
+            const data = {
+                file: file,
+                contractAnalystResults: {
+                    contractResult: contractImportantText,
+                    checklistResult: lcmChecklistResults,
+                },
+            }
+
+            console.log(file)
+            setContractFile(file)
+
             setUploadError('')
             setUploadSuccess('')
             uploadFile(
-                file,
+                data,
                 (msg) => {
                     setUploadSuccess(msg)
-                    setContractFile(file)
                     if (file.type.includes('image')) {
                         extractTextFromImage(file, setContractText, () => {})
                     } else if (file.type === 'application/pdf') {
@@ -56,10 +83,32 @@ export const useDetectContract = () => {
         }
     }
 
+    const handleSaveButton = () => {
+        if (!contractFile) return
+        const data = {
+            file: contractFile,
+            contractAnalystResults: {
+                contractResult: contractImportantText,
+                checklistResult: lcmChecklistResults,
+            },
+        }
+
+        uploadFile(
+            data,
+            (msg) => {
+                setUploadSuccess(msg)
+                router.push('/nda-manager')
+            },
+            (msg) => setUploadError(msg),
+            setIsProcessing,
+        )
+    }
+
     const handleContractDrop = async (file: File) => {
         setError('')
         setIsProcessing(true)
         setContractFile(file)
+
         try {
             if (file.type.includes('image')) {
                 await extractTextFromImage(file, setContractText, () => {})
@@ -78,21 +127,6 @@ export const useDetectContract = () => {
         }
     }
 
-    const handleLcmDrop = async (file: File) => {
-        setError('')
-        setIsProcessing(true)
-        setLcmFile(file)
-        if (file) {
-            file.arrayBuffer().then((arrBuf) => {
-                const wb = XLSX.read(arrBuf, { type: 'array' })
-                const sheet = wb.Sheets[wb.SheetNames[0]]
-                const json: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 })
-                setChecklistRows(json)
-            })
-        }
-        setIsProcessing(false)
-    }
-
     const parseChecklistExcel = (arrayBuffer: ArrayBuffer): ChecklistRow[] => {
         const workbook = XLSX.read(arrayBuffer, { type: 'array' })
         const sheet = workbook.Sheets[workbook.SheetNames[0]]
@@ -103,7 +137,7 @@ export const useDetectContract = () => {
         const idxItem = headers.findIndex((v: string) => v.includes('item'))
         const idxStandard = headers.findIndex((v: string) => v.includes('standard'))
         const idxFreq = headers.findIndex((v: string) => v.includes('frequency'))
-
+        setChecklistRows(json)
         return json
             .slice(1)
             .filter((r: any[]) => r[idxItem] && r[idxStandard])
@@ -140,11 +174,9 @@ export const useDetectContract = () => {
             const content = res.data.choices?.[0]?.message?.content ?? ''
             let jsonContent: any[] = []
             try {
-                // Remove leading ```json or ``` if present before parsing
                 let cleanedData = content
                 if (typeof cleanedData === 'string') {
                     cleanedData = cleanedData.replace(/^```json|^```/i, '').trim()
-                    // Remove trailing ``` if present
                     cleanedData = cleanedData.replace(/```$/, '').trim()
                 }
                 jsonContent = JSON.parse(cleanedData)
@@ -177,6 +209,124 @@ export const useDetectContract = () => {
         )
     }
 
+    const handleDownloadWordReport = () => {
+        if (!lcmChecklistResults.length) return
+
+        // Phần 1: Missing Terms
+        const missing = lcmChecklistResults.filter(
+            (r) =>
+                !r.found_text ||
+                r.found_text.trim() === '' ||
+                r.found_text.toLowerCase().includes('không tìm thấy'),
+        )
+
+        let html = `
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body, table, th, td, div, span {
+                font-family: Arial, 'Segoe UI', Calibri, 'Liberation Sans', 'DejaVu Sans', sans-serif;
+                font-size: 16px;
+            }
+            table { border-collapse: collapse; }
+            th, td { padding: 8px 14px; }
+        </style>
+    </head>
+    <body>
+    <h2>Missing Terms</h2>
+    <table border="1" cellpadding="6" style="margin-bottom:30px">
+        <tr>
+            <th>Item</th>
+            <th>Standard</th>
+            <th>Suggest</th>
+        </tr>`
+
+        missing.forEach((row) => {
+            html += `<tr>
+            <td>${row.item}</td>
+            <td>${row.standard}</td>
+            <td>${row.suggest || ''}</td>
+        </tr>`
+        })
+        html += `</table>`
+
+        // Phần 2: Detail Contract (tô màu đoạn found_text trong hợp đồng)
+        let markedContract = contractText
+        const alreadyMarked = new Set<string>()
+        lcmChecklistResults
+            .filter(
+                (r) =>
+                    r.found_text &&
+                    r.found_text.trim() !== '' &&
+                    !r.found_text.toLowerCase().includes('không tìm thấy'),
+            )
+            .sort((a, b) => (a.review_result === 'NOK' ? -1 : 1))
+            .forEach((row) => {
+                const cleanFound = row.found_text.replace(/([.*+?^=!:${}()|[\]/\\])/g, '\\$1')
+                if (alreadyMarked.has(cleanFound)) return
+                alreadyMarked.add(cleanFound)
+                if (row.review_result === 'NOK') {
+                    markedContract = markedContract.replace(
+                        new RegExp(cleanFound, 'g'),
+                        `<span style="background-color:#ff6666; color:#222;">${row.found_text}</span>` +
+                            (row.suggest
+                                ? `<span style="color:#c00; font-style:italic;"> (Suggest: ${row.suggest})</span>`
+                                : ''),
+                    )
+                } else if (row.review_result === 'OK') {
+                    markedContract = markedContract.replace(
+                        new RegExp(cleanFound, 'g'),
+                        `<span style="background-color:#fff666;">${row.found_text}</span>`,
+                    )
+                }
+            })
+
+        html += `<h2>Detail Contract</h2><div style="white-space:pre-wrap; font-size:16px;">${markedContract}</div>`
+        html += `</body></html>`
+
+        // Xuất file
+        const blob = new Blob([html], { type: 'application/msword' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'contract_review_report.doc'
+        a.click()
+        setTimeout(() => URL.revokeObjectURL(url), 1000)
+    }
+
+    const handleDownloadExcel = () => {
+        if (!contractImportantText.length || !checklistRows.length) return
+
+        // Tạo bản sao (deep clone) để không ảnh hưởng state
+        const outRows = checklistRows.map((row) => [...row])
+        if (!outRows.length) return
+
+        // Xác định chỉ số cột item (tìm gần đúng từ header)
+        const headerRow = outRows[0].map((h: any) => (h || '').toLowerCase())
+        const idxItem = headerRow.findIndex((v: string) => v.includes('item'))
+        // Xác định cột review_result (tự thêm nếu chưa có)
+        let rrIdx = headerRow.findIndex((v: string) => v.includes('review result'))
+        if (rrIdx === -1) {
+            outRows[0].push('Review Result')
+            rrIdx = outRows[0].length - 1
+        }
+
+        // Duyệt từng dòng checklist (bỏ header)
+        for (let i = 1; i < outRows.length; ++i) {
+            const itemCell = (outRows[i][idxItem] || '').toString().trim()
+            // Tìm review theo item (nếu nhiều item trùng nhau thì map đúng thứ tự)
+            const review = contractImportantText.find((r) => r.item.trim() === itemCell)
+            outRows[i][rrIdx] = review?.review_result || ''
+        }
+
+        // Ghi file Excel
+        const wb = XLSX.utils.book_new()
+        const ws = XLSX.utils.aoa_to_sheet(outRows)
+        XLSX.utils.book_append_sheet(wb, ws, 'Review')
+        XLSX.writeFile(wb, 'contract_checklist_with_review.xlsx')
+    }
+
     return {
         contractFile,
         setContractFile,
@@ -202,8 +352,12 @@ export const useDetectContract = () => {
         setUploadSuccess,
         handleUploadContract,
         handleContractDrop,
-        handleLcmDrop,
         processContractText,
         handleAnalyzeChecklist,
+        onContractDelete,
+        onLcmDelete,
+        handleSaveButton,
+        handleDownloadExcel,
+        handleDownloadWordReport,
     }
 }

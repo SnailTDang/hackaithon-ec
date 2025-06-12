@@ -1,27 +1,20 @@
 import React from 'react'
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material'
+import FilePreview from './ContentFileRender'
 
 interface PreviewDialogProps {
     open: boolean
     title: string
-    content: string
+    file: File | null
     onClose: () => void
 }
 
-const PreviewDialog = ({ open, title, content, onClose }: PreviewDialogProps) => {
+const PreviewDialog = ({ open, title, file, onClose }: PreviewDialogProps) => {
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                <TextField
-                    multiline
-                    rows={15}
-                    fullWidth
-                    value={content}
-                    variant="outlined"
-                    InputProps={{ readOnly: true }}
-                    sx={{ mt: 1 }}
-                />
+                <FilePreview file={file} />
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Close</Button>

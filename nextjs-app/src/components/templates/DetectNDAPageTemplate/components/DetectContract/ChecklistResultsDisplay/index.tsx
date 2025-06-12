@@ -6,7 +6,6 @@ import {
     Box,
     Button,
     Container,
-    Typography,
     Table,
     TableBody,
     TableCell,
@@ -14,28 +13,22 @@ import {
     TableHead,
     TableRow,
     Paper,
-    Alert,
     Stack,
 } from '@mui/material'
-import { UseNDAChecklistReturn } from '@/components/templates/NDAChecklistTemplate/modules/useNDAChecklist'
 
-export const ChecklistResultsDisplay = ({ result }) => {
+export const ChecklistResultsDisplay = ({
+    result,
+    handleDownloadWordReport,
+    handleDownloadExcel,
+}) => {
     return (
         <Container maxWidth="xl" sx={{ mt: 5, mb: 5 }}>
             {result.length > 0 && (
                 <Stack direction="row" spacing={2} mb={2} justifyContent="flex-end">
-                    <Button
-                        variant="contained"
-                        color="success"
-                        // onClick={handleDownloadWordReport}
-                    >
+                    <Button variant="contained" color="success" onClick={handleDownloadWordReport}>
                         Download Word Report
                     </Button>
-                    <Button
-                        variant="contained"
-                        color="info"
-                        //  onClick={handleDownloadExcel}
-                    >
+                    <Button variant="contained" color="info" onClick={handleDownloadExcel}>
                         Download Excel Report
                     </Button>
                 </Stack>

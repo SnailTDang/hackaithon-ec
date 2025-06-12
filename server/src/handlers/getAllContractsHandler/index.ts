@@ -38,6 +38,9 @@ export default async function getAllContractsHandler(req: FastifyRequest, res: F
         // Build filter object
         const filter: any = {}
 
+        // Only include contracts that are not deleted (delFlg != true)
+        filter.delFlg = { $ne: true }
+
         // Contract name search (case-insensitive)
         if (contractName && contractName.trim()) {
             filter.contractName = {

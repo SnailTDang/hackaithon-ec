@@ -13,10 +13,24 @@ export interface IFileInfo {
 export interface IContract extends Document {
     contractName: string
     file: IFileInfo
-    hightlighted: string
+    contractAnalystResults: IContractAnalystResults | null // Optional field
     createdAt?: Date
     updatedAt?: Date
+    delFlg?: boolean
 }
+
+export interface IContractAnalystResults {
+    contractResult: string
+    checklistResult: string
+}
+
+const ContractAnalystResultsSchema: Schema = new Schema(
+    {
+        contractResult: { type: String, required: true },
+        checklistResult: { type: String, required: true },
+    },
+    { _id: false },
+)
 
 const FileInfoSchema: Schema = new Schema(
     {
@@ -48,8 +62,8 @@ const ContractSchema: Schema = new Schema(
             type: FileInfoSchema,
             required: [true, 'File info is required'],
         },
-        hightlighted: {
-            type: String,
+        contractAnalystResults: {
+            type: ContractAnalystResultsSchema,
             required: false,
         },
     },

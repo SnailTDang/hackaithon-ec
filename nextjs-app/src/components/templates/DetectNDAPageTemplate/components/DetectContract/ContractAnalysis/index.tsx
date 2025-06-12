@@ -9,7 +9,7 @@ import {
     AccordionDetails,
 } from '@mui/material'
 import { Analytics, ExpandMore } from '@mui/icons-material'
-import { Section } from 'shared/constants/prompts'
+import { Section } from '@/shared/constants/prompts'
 
 type ContractAnalysisProps = {
     contractImportantText: Section[] | null

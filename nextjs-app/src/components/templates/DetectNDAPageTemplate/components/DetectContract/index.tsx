@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Box, Snackbar, Alert, Tab, Tabs } from '@mui/material'
+import { Box, Snackbar, Alert, Tab, Tabs, Button, Toolbar } from '@mui/material'
 import { useDetectContract } from '../../module/useDetectContract'
 import FileUploadSection from './FileUploadSection'
 import ProcessingIndicator from './ProcessingIndicator'
@@ -10,13 +10,9 @@ import { ChecklistResultsDisplay } from './ChecklistResultsDisplay'
 const DetectContract = () => {
     const {
         contractFile,
-        setContractFile,
         lcmFile,
-        setLcmFile,
         contractText,
-        setContractText,
         lcmChecklist,
-        setLcmChecklist,
         isProcessing,
         error,
         setError,
@@ -28,10 +24,15 @@ const DetectContract = () => {
         setUploadError,
         uploadSuccess,
         setUploadSuccess,
-        handleUploadContract,
-        handleLcmDrop,
+        handleContractDrop,
         processContractText,
         handleAnalyzeChecklist,
+        onLcmDelete,
+        onContractDelete,
+        setLcmFile,
+        handleSaveButton,
+        handleDownloadWordReport,
+        handleDownloadExcel,
     } = useDetectContract()
 
     const [tab, setTab] = useState(0)
@@ -49,20 +50,12 @@ const DetectContract = () => {
                         lcmFile={lcmFile}
                         contractText={contractText}
                         lcmChecklist={lcmChecklist}
-                        onContractDrop={handleUploadContract}
-                        onLcmDrop={handleLcmDrop}
-                        onContractDelete={() => {
-                            setContractFile(null)
-                            setContractText('')
-                            // setContractImportantText(null)
-                        }}
-                        onLcmDelete={() => {
-                            setLcmFile(null)
-                            setLcmChecklist('')
-                            // setLcmChecklistResults([])
-                        }}
-                        onPreviewClick={(content, title) =>
-                            setPreviewDialog({ open: true, content, title })
+                        onContractDrop={handleContractDrop}
+                        onLcmDrop={setLcmFile}
+                        onContractDelete={onContractDelete}
+                        onLcmDelete={onLcmDelete}
+                        onPreviewClick={(file, title) =>
+                            setPreviewDialog({ open: true, content: file, title })
                         }
                         isProcessing={isProcessing}
                         onAnalyseContract={processContractText}
@@ -70,10 +63,26 @@ const DetectContract = () => {
                     />
                 </Box>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <Tabs value={tab} onChange={handleChange} aria-label="main tabs">
-                        <Tab label="Analyze Contract" />
-                        <Tab label="Analyze Checklist" />
-                    </Tabs>
+                    <Toolbar>
+                        <Tabs value={tab} onChange={handleChange} aria-label="main tabs">
+                            <Tab label="Analyze Contract" />
+                            <Tab label="Analyze Checklist" />
+                        </Tabs>
+                        <Box sx={{ ml: 4 }}>
+                            <Button
+                                sx={{ px: 2 }}
+                                size="medium"
+                                onClick={handleSaveButton}
+                                disabled={
+                                    !contractFile &&
+                                    !lcmChecklistResults.length &&
+                                    !contractImportantText
+                                }
+                            >
+                                Save Analyst Results
+                            </Button>
+                        </Box>
+                    </Toolbar>
                 </Box>
                 <Box sx={{ mt: 2 }}>
                     <ProcessingIndicator
@@ -104,20 +113,24 @@ const DetectContract = () => {
                         <PreviewDialog
                             open={previewDialog.open}
                             title={previewDialog.title}
-                            content={previewDialog.content}
+                            file={previewDialog.content}
                             onClose={() =>
-                                setPreviewDialog({ open: false, content: '', title: '' })
+                                setPreviewDialog({ open: false, content: null, title: '' })
                             }
                         />
                     </Box>
                     <Box sx={{ display: tab === 1 ? 'block' : 'none' }}>
-                        <ChecklistResultsDisplay result={lcmChecklistResults} />
+                        <ChecklistResultsDisplay
+                            result={lcmChecklistResults}
+                            handleDownloadExcel={handleDownloadExcel}
+                            handleDownloadWordReport={handleDownloadWordReport}
+                        />
                         <PreviewDialog
                             open={previewDialog.open}
                             title={previewDialog.title}
-                            content={previewDialog.content}
+                            file={previewDialog.content}
                             onClose={() =>
-                                setPreviewDialog({ open: false, content: '', title: '' })
+                                setPreviewDialog({ open: false, content: null, title: '' })
                             }
                         />
                     </Box>

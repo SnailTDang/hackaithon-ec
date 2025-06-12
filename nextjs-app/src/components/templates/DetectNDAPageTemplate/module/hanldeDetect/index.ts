@@ -7,7 +7,7 @@ import {
     buildPromptDetectContract,
     MAIN_PROMPT,
     MAIN_PROMPT_DELIVERY,
-} from 'shared/constants/prompts'
+} from '@/shared/constants/prompts'
 
 // Ensure axios uses the same origin (port 3000) for API calls
 axios.defaults.baseURL = ''

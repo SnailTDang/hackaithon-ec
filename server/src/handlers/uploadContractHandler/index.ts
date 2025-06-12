@@ -103,6 +103,7 @@ export default async function uploadContractHandler(
             contractName: file.filename || 'Untitled',
             hightlighted: hightlighted || '',
             file: fileInfo,
+            delFlg: false,
         })
         console.log('Contract created successfully:', tempContract._id)
         req.log.info({ contractId: tempContract._id }, 'Contract created successfully')

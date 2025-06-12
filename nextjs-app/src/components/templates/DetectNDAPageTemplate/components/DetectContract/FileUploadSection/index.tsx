@@ -19,7 +19,7 @@ interface FileUploadSectionProps {
     onLcmDrop: (file: File) => void
     onContractDelete: () => void
     onLcmDelete: () => void
-    onPreviewClick: (content: string, title: string) => void
+    onPreviewClick: (content: File | null, title: string) => void
     isProcessing: boolean
     onAnalyseContract: () => void
     handleAnalyzeChecklist?: () => void
@@ -28,8 +28,6 @@ interface FileUploadSectionProps {
 const FileUploadSection = ({
     contractFile,
     lcmFile,
-    contractText,
-    lcmChecklist,
     isProcessing,
     onContractDrop,
     onLcmDrop,
@@ -97,7 +95,7 @@ const FileUploadSection = ({
                             <IconButton
                                 color="warning"
                                 sx={{ ml: 1 }}
-                                onClick={() => onPreviewClick(contractText, contractFile.name)}
+                                onClick={() => onPreviewClick(contractFile, contractFile.name)}
                             >
                                 <Visibility />
                             </IconButton>
@@ -165,7 +163,7 @@ const FileUploadSection = ({
                                 <IconButton
                                     color="warning"
                                     sx={{ ml: 1 }}
-                                    onClick={() => onPreviewClick(lcmChecklist, lcmFile.name)}
+                                    onClick={() => onPreviewClick(lcmFile, lcmFile.name)}
                                 >
                                     <Visibility />
                                 </IconButton>
