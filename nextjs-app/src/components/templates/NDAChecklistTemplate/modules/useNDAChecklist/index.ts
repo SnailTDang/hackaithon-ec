@@ -4,7 +4,7 @@ import * as XLSX from 'xlsx'
 import mammoth from 'mammoth'
 import { readAsText } from 'promise-file-reader'
 import axios from 'axios'
-import { buildPromptChecklist } from 'shared/constants/prompts'
+import { buildPromptChecklist } from '@/shared/constants/prompts'
 
 type ChecklistRow = {
     item: string
@@ -58,7 +58,7 @@ export function useNDAChecklist(): UseNDAChecklistReturn {
         const sheet = workbook.Sheets[workbook.SheetNames[0]]
         const json: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 })
 
-        const headers = (json[0] || []).map((h: any) => (h || '').toLowerCase())
+        const headers = (json[2] || []).map((h: any) => (h || '').toLowerCase())
         const idxItem = headers.findIndex((v: string) => v.includes('item'))
         const idxStandard = headers.findIndex((v: string) => v.includes('standard'))
         const idxFreq = headers.findIndex((v: string) => v.includes('frequency'))
