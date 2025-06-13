@@ -21,6 +21,7 @@ type ChecklistRow = {
 }
 
 export type UseDetectContractReturn = {
+    isProcessingDelivery: boolean
     tabResult: number
     handleChangeTab: (tab: number) => void
     contractFile: File | null
@@ -75,6 +76,7 @@ export const useDetectContract = (): UseDetectContractReturn => {
     const [contractText, setContractText] = useState('')
     const [lcmChecklist, setLcmChecklist] = useState('')
     const [isProcessing, setIsProcessing] = useState(false)
+    const [isProcessingDelivery, setProcessingDelivery] = useState(false)
     const [error, setError] = useState('')
     const [contractImportantText, setContractImportantText] = useState<any[] | null>(null)
     const [lcmChecklistResults, setLcmChecklistResults] = useState<any[]>([])
@@ -225,7 +227,7 @@ export const useDetectContract = (): UseDetectContractReturn => {
                 .join('\n')
             const prompt = buildPromptChecklist(checklistTable, contractText)
             const res = await axios.post('/api/analyze-contract', {
-                model: 'deepseek/deepseek-chat-v3-0324:free',
+                model: 'deepseek/deepseek-r1-0528:free',
                 messages: [{ role: 'user', content: prompt }],
                 temperature: 0.1,
             })
@@ -255,6 +257,7 @@ export const useDetectContract = (): UseDetectContractReturn => {
         if (!contractText) return
         handleChangeTab(0)
         setIsProcessing(true)
+        setProcessingDelivery(true)
         extractContractInfo(contractText, setContractImportantText, () => {
             setIsProcessing(false)
         })
@@ -270,7 +273,7 @@ export const useDetectContract = (): UseDetectContractReturn => {
                 })
             },
             () => {
-                setIsProcessing(false)
+                setProcessingDelivery(false)
             },
         )
     }
@@ -407,6 +410,7 @@ export const useDetectContract = (): UseDetectContractReturn => {
         previewDialog,
         uploadError,
         uploadSuccess,
+        isProcessingDelivery,
         handleChangeTab,
         setContractFile,
         setLcmFile,

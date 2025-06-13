@@ -16,6 +16,7 @@ const DetectContract = (props: UseDetectContractReturn) => {
         lcmChecklist,
         isProcessing,
         error,
+        isProcessingDelivery,
         setError,
         contractImportantText,
         lcmChecklistResults,
@@ -121,6 +122,7 @@ const DetectContract = (props: UseDetectContractReturn) => {
                         <Box sx={{ display: tabResult === 0 ? 'block' : 'none' }}>
                             <ContractAnalysis
                                 contractImportantText={contractImportantText}
+                                isProcessing={isProcessingDelivery}
                                 onPreviewDelivery={() =>
                                     setPreviewDialog((state) => {
                                         return {
