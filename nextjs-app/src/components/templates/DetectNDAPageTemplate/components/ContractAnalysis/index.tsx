@@ -7,15 +7,17 @@ import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
+    Button,
 } from '@mui/material'
 import { Analytics, ExpandMore } from '@mui/icons-material'
 import { Section } from '@/shared/constants/prompts'
 
 type ContractAnalysisProps = {
     contractImportantText: Section[] | null
+    onPreviewDelivery: () => void
 }
 
-const ContractAnalysis = ({ contractImportantText }: ContractAnalysisProps) => {
+const ContractAnalysis = ({ contractImportantText, onPreviewDelivery }: ContractAnalysisProps) => {
     if (!contractImportantText || !Array.isArray(contractImportantText)) return null
 
     return (
@@ -28,8 +30,16 @@ const ContractAnalysis = ({ contractImportantText }: ContractAnalysisProps) => {
                     </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Accordion defaultExpanded={true}>
+                        <AccordionSummary expandIcon={<ExpandMore />}>
+                            <Typography variant="h6">Delivery</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Button onClick={onPreviewDelivery}>View New Contract</Button>
+                        </AccordionDetails>
+                    </Accordion>
                     {contractImportantText.map((section, idx) => (
-                        <Accordion key={section.title} defaultExpanded={idx === 0}>
+                        <Accordion key={section.title}>
                             <AccordionSummary expandIcon={<ExpandMore />}>
                                 <Typography variant="h6">{section.title}</Typography>
                             </AccordionSummary>

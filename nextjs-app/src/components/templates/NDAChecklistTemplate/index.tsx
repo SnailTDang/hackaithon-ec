@@ -5,5 +5,5 @@ import { useNDAChecklist } from './modules/useNDAChecklist'
 
 export const NDAChecklistTemplate = (props) => {
     const dependencies = useNDAChecklist()
-    return <Template {...dependencies} />
+    return <Template {...dependencies} {...props} />
 }

@@ -19,7 +19,56 @@ type ChecklistRow = {
     standard: string
     frequency: string
 }
-export const useDetectContract = () => {
+
+export type UseDetectContractReturn = {
+    tabResult: number
+    handleChangeTab: (tab: number) => void
+    contractFile: File | null
+    setContractFile: React.Dispatch<React.SetStateAction<File | null>>
+    lcmFile: File | null
+    setLcmFile: React.Dispatch<React.SetStateAction<File | null>>
+    contractText: string
+    setContractText: React.Dispatch<React.SetStateAction<string>>
+    lcmChecklist: string
+    setLcmChecklist: React.Dispatch<React.SetStateAction<string>>
+    isProcessing: boolean
+    setIsProcessing: React.Dispatch<React.SetStateAction<boolean>>
+    error: string
+    setError: React.Dispatch<React.SetStateAction<string>>
+    contractImportantText: any[] | null
+    setContractImportantText: React.Dispatch<React.SetStateAction<any[] | null>>
+    lcmChecklistResults: any[]
+    setLcmChecklistResults: React.Dispatch<React.SetStateAction<any[]>>
+    previewDialog: {
+        open: boolean
+        file: File | null
+        content: string | null
+        title: string
+    }
+    setPreviewDialog: React.Dispatch<
+        React.SetStateAction<{
+            open: boolean
+            content: string | null
+            file: File | null
+            title: string
+        }>
+    >
+    uploadError: string
+    setUploadError: React.Dispatch<React.SetStateAction<string>>
+    uploadSuccess: string
+    setUploadSuccess: React.Dispatch<React.SetStateAction<string>>
+    handleUploadContract: (file: File) => void
+    handleContractDrop: (file: File) => Promise<void>
+    processContractText: () => void
+    handleAnalyzeChecklist: () => Promise<void>
+    onContractDelete: () => void
+    onLcmDelete: () => void
+    handleSaveButton: () => void
+    handleDownloadExcel: () => void
+    handleDownloadWordReport: () => void
+}
+
+export const useDetectContract = (): UseDetectContractReturn => {
     const router = useRouter()
     const [contractFile, setContractFile] = useState<File | null>(null)
     const [lcmFile, setLcmFile] = useState<File | null>(null)
@@ -31,12 +80,18 @@ export const useDetectContract = () => {
     const [lcmChecklistResults, setLcmChecklistResults] = useState<any[]>([])
     const [previewDialog, setPreviewDialog] = useState<{
         open: boolean
-        content: File | null
+        file: File | null
+        content: string | null
         title: string
-    }>({ open: false, content: null, title: '' })
+    }>({ open: false, content: null, file: null, title: '' })
     const [uploadError, setUploadError] = useState('')
     const [uploadSuccess, setUploadSuccess] = useState('')
     const [checklistRows, setChecklistRows] = useState<any[][]>([])
+    const [tabResult, setTabResult] = useState(0)
+
+    const handleChangeTab = (newValue: number) => {
+        setTabResult(newValue)
+    }
 
     const onContractDelete = () => {
         setContractFile(null)
@@ -151,14 +206,15 @@ export const useDetectContract = () => {
     }
 
     const handleAnalyzeChecklist = async () => {
-        setError('')
-        setLcmChecklistResults([])
-        setIsProcessing(true)
         if (!contractText || !lcmFile) {
             setError('Vui lòng chọn đủ 2 file')
             return
         }
         try {
+            setError('')
+            setLcmChecklistResults([])
+            setIsProcessing(true)
+            handleChangeTab(1)
             const arrayBuffer = await lcmFile.arrayBuffer()
             const checklist = parseChecklistExcel(arrayBuffer)
             const checklistTable = checklist
@@ -189,13 +245,15 @@ export const useDetectContract = () => {
             setLcmChecklistResults(jsonContent)
             setIsProcessing(false)
         } catch (e: any) {
-            setIsProcessing(false)
             setError('Lỗi: ' + (e?.message || e))
+        } finally {
+            setIsProcessing(false)
         }
     }
 
-    const processContractText = () => {
+    const processContractText = async () => {
         if (!contractText) return
+        handleChangeTab(0)
         setIsProcessing(true)
         extractContractInfo(contractText, setContractImportantText, () => {
             setIsProcessing(false)
@@ -203,7 +261,13 @@ export const useDetectContract = () => {
         handlePreviewContract(
             contractText,
             (content) => {
-                setPreviewDialog({ open: true, content, title: 'Contract Preview' })
+                console.log(content)
+                setPreviewDialog({
+                    open: true,
+                    content: content[0].content,
+                    file: null,
+                    title: 'Contract Preview',
+                })
             },
             () => {
                 setIsProcessing(false)
@@ -212,6 +276,7 @@ export const useDetectContract = () => {
     }
 
     const handleDownloadWordReport = () => {
+        console.log(lcmChecklistResults)
         if (!lcmChecklistResults.length) return
 
         // Phần 1: Missing Terms
@@ -298,7 +363,7 @@ export const useDetectContract = () => {
     }
 
     const handleDownloadExcel = () => {
-        if (!contractImportantText || !contractImportantText.length || !checklistRows.length) return
+        if (!lcmChecklistResults || !lcmChecklistResults.length || !checklistRows.length) return
 
         // Tạo bản sao (deep clone) để không ảnh hưởng state
         const outRows = checklistRows.map((row) => [...row])
@@ -318,7 +383,7 @@ export const useDetectContract = () => {
         for (let i = 1; i < outRows.length; ++i) {
             const itemCell = (outRows[i][idxItem] || '').toString().trim()
             // Tìm review theo item (nếu nhiều item trùng nhau thì map đúng thứ tự)
-            const review = contractImportantText.find((r) => r.item?.trim() === itemCell)
+            const review = lcmChecklistResults.find((r) => r.item?.trim() === itemCell)
             outRows[i][rrIdx] = review?.review_result || ''
         }
 
@@ -330,27 +395,29 @@ export const useDetectContract = () => {
     }
 
     return {
+        tabResult,
         contractFile,
-        setContractFile,
         lcmFile,
-        setLcmFile,
         contractText,
-        setContractText,
         lcmChecklist,
-        setLcmChecklist,
         isProcessing,
-        setIsProcessing,
         error,
-        setError,
         contractImportantText,
-        setContractImportantText,
         lcmChecklistResults,
-        setLcmChecklistResults,
         previewDialog,
-        setPreviewDialog,
         uploadError,
-        setUploadError,
         uploadSuccess,
+        handleChangeTab,
+        setContractFile,
+        setLcmFile,
+        setContractText,
+        setLcmChecklist,
+        setIsProcessing,
+        setError,
+        setContractImportantText,
+        setLcmChecklistResults,
+        setPreviewDialog,
+        setUploadError,
         setUploadSuccess,
         handleUploadContract,
         handleContractDrop,
