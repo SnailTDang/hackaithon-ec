@@ -7,14 +7,15 @@ interface PreviewDialogProps {
     title: string
     file: File | null
     onClose: () => void
+    content: string | null
 }
 
-const PreviewDialog = ({ open, title, file, onClose }: PreviewDialogProps) => {
+const PreviewDialog = ({ open, title, file, onClose, content }: PreviewDialogProps) => {
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                <FilePreview file={file} />
+                <FilePreview file={file} content={content} />
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Close</Button>

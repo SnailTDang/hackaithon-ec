@@ -3,11 +3,7 @@ import axios from 'axios'
 import Tesseract from 'tesseract.js'
 import mammoth from 'mammoth'
 import * as pdfjsLib from 'pdfjs-dist/build/pdf'
-import {
-    buildPromptDetectContract,
-    MAIN_PROMPT,
-    MAIN_PROMPT_DELIVERY,
-} from '@/shared/constants/prompts'
+import { buildPromptDetectContract, MAIN_PROMPT_DELIVERY } from '@/shared/constants/prompts'
 
 // Ensure axios uses the same origin (port 3000) for API calls
 axios.defaults.baseURL = ''
@@ -106,7 +102,7 @@ export const extractContractInfo = async (
 
 export const handlePreviewContract = async (
     contractText: string,
-    setContractImportantText: (json: any) => void,
+    setDeliveryContract: (json: any) => void,
     showToast: (msg: string) => void,
 ) => {
     try {
@@ -132,7 +128,7 @@ export const handlePreviewContract = async (
             showToast('Analysis result is not valid JSON')
             return
         }
-        setContractImportantText(jsonContent)
+        setDeliveryContract(jsonContent)
         showToast('Contract analyzed')
     } catch (error) {
         console.error('Error extracting important contract information:', error)

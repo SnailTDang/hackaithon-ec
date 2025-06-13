@@ -13,7 +13,7 @@ export async function deepseekChatHandler(req: FastifyRequest, reply: FastifyRep
         )
         // @ts-ignore
         req.log.info({ body: req.body }, '[DeepSeek] Request body')
-        const { messages, model = 'deepseek/deepseek-chat-v3-0324:free' } = req.body as any
+        const { messages, model = 'deepseek/deepseek-r1-0528:free' } = req.body as any
         if (!messages || !Array.isArray(messages)) {
             req.log.error('[DeepSeek] Error: messages array is required')
             return reply.code(400).send({ error: 'messages array is required' })

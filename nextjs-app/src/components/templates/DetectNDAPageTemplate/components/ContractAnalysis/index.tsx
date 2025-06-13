@@ -7,15 +7,23 @@ import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
+    Button,
+    CircularProgress,
 } from '@mui/material'
 import { Analytics, ExpandMore } from '@mui/icons-material'
 import { Section } from '@/shared/constants/prompts'
 
 type ContractAnalysisProps = {
     contractImportantText: Section[] | null
+    onPreviewDelivery: () => void
+    isProcessing: boolean
 }
 
-const ContractAnalysis = ({ contractImportantText }: ContractAnalysisProps) => {
+const ContractAnalysis = ({
+    contractImportantText,
+    isProcessing,
+    onPreviewDelivery,
+}: ContractAnalysisProps) => {
     if (!contractImportantText || !Array.isArray(contractImportantText)) return null
 
     return (
@@ -28,6 +36,23 @@ const ContractAnalysis = ({ contractImportantText }: ContractAnalysisProps) => {
                     </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Accordion defaultExpanded={true}>
+                        <AccordionSummary expandIcon={<ExpandMore />}>
+                            <Typography variant="h6">Delivery</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Button
+                                onClick={onPreviewDelivery}
+                                disabled={isProcessing}
+                                variant="contained"
+                            >
+                                {isProcessing && (
+                                    <CircularProgress size={24} color="inherit" sx={{ mr: 2 }} />
+                                )}
+                                View Delivery Content
+                            </Button>
+                        </AccordionDetails>
+                    </Accordion>
                     {contractImportantText.map((section, idx) => (
                         <Accordion key={section.title} defaultExpanded={idx === 0}>
                             <AccordionSummary expandIcon={<ExpandMore />}>

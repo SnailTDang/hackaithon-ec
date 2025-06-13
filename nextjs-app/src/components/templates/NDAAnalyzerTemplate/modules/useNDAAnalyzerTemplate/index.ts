@@ -16,7 +16,7 @@ export const useNDAAnalyzerTemplate = () => {
     const AnalyzeFn = async (promptData: string) => {
         try {
             const response = await axios.post('/api/analyze-contract', {
-                model: 'deepseek/deepseek-chat-v3-0324:free',
+                model: 'deepseek/deepseek-r1-0528:free',
                 messages: [{ role: 'user', content: promptData }],
             })
             const content = response.data.choices?.[0]?.message?.content || ''
