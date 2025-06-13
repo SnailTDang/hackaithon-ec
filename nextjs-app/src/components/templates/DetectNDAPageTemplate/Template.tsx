@@ -143,6 +143,7 @@ const DetectContract = (props: UseDetectContractReturn) => {
                                     setPreviewDialog((state) => {
                                         return {
                                             ...state,
+                                            file: lcmFile || contractFile,
                                             content: deliveryContract,
                                             open: true,
                                         }
