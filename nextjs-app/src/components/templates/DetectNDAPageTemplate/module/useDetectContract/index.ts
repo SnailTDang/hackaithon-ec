@@ -370,7 +370,7 @@ export const useDetectContract = (): UseDetectContractReturn => {
         if (!outRows.length) return
 
         // Xác định chỉ số cột item (tìm gần đúng từ header)
-        const headerRow = outRows[0].map((h: any) => (h || '').toLowerCase())
+        const headerRow = outRows[2].map((h: any) => (h || '').toLowerCase())
         const idxItem = headerRow.findIndex((v: string) => v.includes('item'))
         // Xác định cột review_result (tự thêm nếu chưa có)
         let rrIdx = headerRow.findIndex((v: string) => v.includes('review result'))
