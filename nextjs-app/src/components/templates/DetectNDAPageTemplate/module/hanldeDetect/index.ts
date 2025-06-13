@@ -102,7 +102,7 @@ export const extractContractInfo = async (
 
 export const handlePreviewContract = async (
     contractText: string,
-    setContractImportantText: (json: any) => void,
+    setDeliveryContract: (json: any) => void,
     showToast: (msg: string) => void,
 ) => {
     try {
@@ -128,7 +128,7 @@ export const handlePreviewContract = async (
             showToast('Analysis result is not valid JSON')
             return
         }
-        setContractImportantText(jsonContent)
+        setDeliveryContract(jsonContent)
         showToast('Contract analyzed')
     } catch (error) {
         console.error('Error extracting important contract information:', error)

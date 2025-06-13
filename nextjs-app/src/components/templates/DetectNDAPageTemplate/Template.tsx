@@ -25,6 +25,7 @@ const DetectContract = (props: UseDetectContractReturn) => {
         uploadError,
         setUploadError,
         uploadSuccess,
+        deliveryContract,
         handleChangeTab,
         setUploadSuccess,
         handleContractDrop,
@@ -56,6 +57,7 @@ const DetectContract = (props: UseDetectContractReturn) => {
                                 setPreviewDialog((state) => {
                                     return {
                                         ...state,
+                                        content: '',
                                         file: file,
                                         title: title,
                                         open: true,
@@ -96,6 +98,20 @@ const DetectContract = (props: UseDetectContractReturn) => {
                         </Toolbar>
                     </Box>
                     <Box sx={{ mt: 2 }}>
+                        <PreviewDialog
+                            open={previewDialog.open}
+                            title={previewDialog.title}
+                            file={previewDialog.file}
+                            content={previewDialog.content}
+                            onClose={() =>
+                                setPreviewDialog((state) => {
+                                    return {
+                                        ...state,
+                                        open: false,
+                                    }
+                                })
+                            }
+                        />
                         <ProcessingIndicator
                             isProcessing={isProcessing}
                             error={error}
@@ -127,21 +143,8 @@ const DetectContract = (props: UseDetectContractReturn) => {
                                     setPreviewDialog((state) => {
                                         return {
                                             ...state,
+                                            content: deliveryContract,
                                             open: true,
-                                        }
-                                    })
-                                }
-                            />
-                            <PreviewDialog
-                                open={previewDialog.open}
-                                title={previewDialog.title}
-                                file={previewDialog.file}
-                                content={previewDialog.content}
-                                onClose={() =>
-                                    setPreviewDialog((state) => {
-                                        return {
-                                            ...state,
-                                            open: false,
                                         }
                                     })
                                 }
@@ -153,20 +156,6 @@ const DetectContract = (props: UseDetectContractReturn) => {
                                 disabledButton={!lcmChecklistResults.length}
                                 handleDownloadExcel={handleDownloadExcel}
                                 handleDownloadWordReport={handleDownloadWordReport}
-                            />
-                            <PreviewDialog
-                                open={previewDialog.open}
-                                title={previewDialog.title}
-                                file={previewDialog.file}
-                                content={previewDialog.content}
-                                onClose={() =>
-                                    setPreviewDialog((state) => {
-                                        return {
-                                            ...state,
-                                            open: false,
-                                        }
-                                    })
-                                }
                             />
                         </Box>
                     </Box>

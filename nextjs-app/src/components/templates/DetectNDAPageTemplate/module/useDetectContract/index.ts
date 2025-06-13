@@ -22,6 +22,7 @@ type ChecklistRow = {
 
 export type UseDetectContractReturn = {
     isProcessingDelivery: boolean
+    deliveryContract: string
     tabResult: number
     handleChangeTab: (tab: number) => void
     contractFile: File | null
@@ -88,6 +89,7 @@ export const useDetectContract = (): UseDetectContractReturn => {
     }>({ open: false, content: null, file: null, title: '' })
     const [uploadError, setUploadError] = useState('')
     const [uploadSuccess, setUploadSuccess] = useState('')
+    const [deliveryContract, setDeliveryContract] = useState('')
     const [checklistRows, setChecklistRows] = useState<any[][]>([])
     const [tabResult, setTabResult] = useState(0)
 
@@ -265,12 +267,7 @@ export const useDetectContract = (): UseDetectContractReturn => {
             contractText,
             (content) => {
                 console.log(content)
-                setPreviewDialog({
-                    open: true,
-                    content: content[0].content,
-                    file: null,
-                    title: 'Contract Preview',
-                })
+                setDeliveryContract(content[0].content)
             },
             () => {
                 setProcessingDelivery(false)
@@ -410,6 +407,7 @@ export const useDetectContract = (): UseDetectContractReturn => {
         previewDialog,
         uploadError,
         uploadSuccess,
+        deliveryContract,
         isProcessingDelivery,
         handleChangeTab,
         setContractFile,
