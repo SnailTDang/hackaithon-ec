@@ -119,7 +119,7 @@ export function useNDAChecklist(): UseNDAChecklistReturn {
                 .join('\n')
             const prompt = buildPromptChecklist(contractText, checklistTable)
             const res = await axios.post('/api/analyze-contract', {
-                model: 'deepseek/deepseek-r1-0528:free',
+                model: 'deepseek/deepseek-chat-v3-0324:free',
                 messages: [{ role: 'user', content: prompt }],
                 temperature: 0.1,
             })

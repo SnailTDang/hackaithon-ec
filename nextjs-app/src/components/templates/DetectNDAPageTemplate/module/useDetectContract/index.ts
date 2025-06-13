@@ -225,7 +225,7 @@ export const useDetectContract = (): UseDetectContractReturn => {
                 .join('\n')
             const prompt = buildPromptChecklist(checklistTable, contractText)
             const res = await axios.post('/api/analyze-contract', {
-                model: 'deepseek/deepseek-r1-0528:free',
+                model: 'deepseek/deepseek-chat-v3-0324:free',
                 messages: [{ role: 'user', content: prompt }],
                 temperature: 0.1,
             })
