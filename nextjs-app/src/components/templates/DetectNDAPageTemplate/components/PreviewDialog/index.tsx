@@ -12,7 +12,7 @@ interface PreviewDialogProps {
 
 const PreviewDialog = ({ open, title, file, onClose, content }: PreviewDialogProps) => {
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+        <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
                 <FilePreview file={file} content={content} />
