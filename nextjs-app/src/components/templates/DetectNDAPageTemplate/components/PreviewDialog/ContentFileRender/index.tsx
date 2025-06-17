@@ -134,10 +134,14 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, content }) => {
                 return (
                     <Box display="flex" justifyContent="center" my={2}>
                         <Box
-                            component="img"
+                            component="iframe"
                             src={(fileContent as ImageContent).url}
-                            alt="Preview"
-                            sx={{ maxWidth: '100%', maxHeight: 384, borderRadius: 2, boxShadow: 3 }}
+                            sx={{
+                                width: '100%',
+                                height: 600,
+                                border: 0,
+                            }}
+                            title="Preview"
                         />
                     </Box>
                 )
@@ -147,7 +151,12 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, content }) => {
                         <Box
                             component="iframe"
                             src={(fileContent as PdfContent).url}
-                            sx={{ width: '100%', height: 384, border: 0, borderRadius: 2 }}
+                            sx={{
+                                width: '100%',
+                                height: 600,
+                                border: 0,
+                                borderRadius: 2,
+                            }}
                             title="PDF Preview"
                         />
                     </Box>
@@ -275,7 +284,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, content }) => {
         processFile(file)
     }, [file])
 
-    return <>{renderPreview()}</>
+    return <Box>{renderPreview()}</Box>
 }
 
 export default FilePreview
