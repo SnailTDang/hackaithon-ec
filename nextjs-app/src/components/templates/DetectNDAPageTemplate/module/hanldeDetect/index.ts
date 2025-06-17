@@ -2,8 +2,12 @@
 import axios from 'axios'
 import Tesseract from 'tesseract.js'
 import mammoth from 'mammoth'
-import * as pdfjsLib from 'pdfjs-dist/build/pdf'
+import * as pdfjsLib from 'pdfjs-dist'
+import { GlobalWorkerOptions } from 'pdfjs-dist'
 import { buildPromptDetectContract, MAIN_PROMPT_DELIVERY } from '@/shared/constants/prompts'
+
+GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
 
 // Ensure axios uses the same origin (port 3000) for API calls
 axios.defaults.baseURL = ''
@@ -39,16 +43,24 @@ export const extractTextFromPdf = async (file: File, setContractText: (text: str
             console.error('FileReader result is null')
             return
         }
-        const pdfData = new Uint8Array(e.target.result as ArrayBuffer)
-        const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise
-        let extractedText = ''
-        for (let i = 0; i < pdf.numPages; i++) {
-            const page = await pdf.getPage(i + 1)
-            const textContent = await page.getTextContent()
-            extractedText += textContent.items.map((item: any) => item.str).join(' ') + '\n'
+
+        try {
+            const pdfData = new Uint8Array(e.target.result as ArrayBuffer)
+            const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise
+
+            let extractedText = ''
+            for (let i = 0; i < pdf.numPages; i++) {
+                const page = await pdf.getPage(i + 1)
+                const textContent = await page.getTextContent()
+                extractedText += textContent.items.map((item: any) => item.str).join(' ') + '\n'
+            }
+
+            setContractText(extractedText)
+        } catch (error) {
+            console.error('Error extracting PDF text:', error)
         }
-        setContractText(extractedText)
     }
+
     reader.readAsArrayBuffer(file)
 }
 

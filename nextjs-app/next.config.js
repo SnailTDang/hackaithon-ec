@@ -5,7 +5,7 @@ const nextConfig = {
     reactStrictMode: true,
     swcMinify: true,
     images: {
-        domains: ['localhost', 'yourdomain.com'],
+        domains: ['localhost', 'yourdomain.com', 'blob:'],
     },
     env: {
         // Example: API_URL: process.env.NEXT_PUBLIC_API_URL
@@ -14,11 +14,25 @@ const nextConfig = {
         if (!isDev) return []
         return [
             {
-                source: '/(.*)',
+                source: '/:path*',
                 headers: [
                     {
                         key: 'Content-Security-Policy',
-                        value: "script-src 'self' 'unsafe-eval'",
+                        value: `
+              default-src 'self';
+              script-src 'self' 'unsafe-eval' cdnjs.cloudflare.com blob: cdn.jsdelivr.net blob:;
+              worker-src 'self' blob:;
+              style-src 'self' 'unsafe-inline';
+              connect-src 'self' data:;
+              object-src 'none';
+              base-uri 'self';
+              form-action 'self';
+              frame-ancestors 'none';
+              img-src 'self' data: blob:;
+              frame-src 'self' blob:; 
+            `
+                            .replace(/\s{2,}/g, ' ')
+                            .trim(),
                     },
                 ],
             },
