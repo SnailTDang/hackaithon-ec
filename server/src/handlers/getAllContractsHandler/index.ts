@@ -11,8 +11,8 @@ interface QueryParams {
     mimetype?: string
     from?: string
     to?: string
-    sort_by?: string
-    sort_order?: 'asc' | 'desc'
+    sortBy?: string
+    sortOrder?: 'asc' | 'desc'
 }
 
 // GET /api/contract/all (get all contracts, paginated, with query params)
@@ -26,8 +26,8 @@ export default async function getAllContractsHandler(req: FastifyRequest, res: F
             mimetype = '',
             from,
             to,
-            sort_by = 'createdAt',
-            sort_order = 'desc',
+            sortBy = 'createdAt',
+            sortOrder = 'desc',
         } = req.query as QueryParams
 
         // Validate and sanitize pagination params
@@ -92,9 +92,10 @@ export default async function getAllContractsHandler(req: FastifyRequest, res: F
 
         // Build sort object
         const sortObject: any = {}
-        const allowedSortFields = ['createdAt', 'updatedAt', 'contractName']
-        const sortField = allowedSortFields.includes(sort_by) ? sort_by : 'createdAt'
-        sortObject[sortField] = sort_order === 'asc' ? 1 : -1
+        const allowedSortFields = ['createdAt', 'updatedAt', 'contractName', 'fileSize', 'status']
+        const sortField = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt'
+        sortObject[sortField] = sortOrder === 'asc' ? 1 : -1
+        if (sortField === 'fileSize') sortObject['file.size'] = sortOrder === 'asc' ? 1 : -1
 
         // Execute queries in parallel for better performance
         const [total, contracts] = await Promise.all([
@@ -115,8 +116,8 @@ export default async function getAllContractsHandler(req: FastifyRequest, res: F
                 mimetype: mimetype || null,
                 from: from || null,
                 to: to || null,
-                sort_by: sortField,
-                sort_order,
+                sortBy: sortField,
+                sortOrder,
             },
         })
     } catch (error) {

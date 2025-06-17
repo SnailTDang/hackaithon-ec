@@ -7,9 +7,10 @@ export type Contract = {
         filename: string
         mimetype: string
         size: number
-        originalname: string
+        originalName: string
         type: 'docx' | 'pdf' | 'image' | 'other'
     }
+    status?: string
 }
 
 export type PaginationMeta = {
@@ -35,10 +36,11 @@ export type TableContentProps = {
 export type Data = {
     index: number
     contractName: string
-    createdAt: string
+    updatedAt: string
     type: string
-    originalname: string
-    size: number
+    originalName: string
+    fileSize: number
+    status: string
 }
 
 // HeadCell type
@@ -47,4 +49,6 @@ export type HeadCell = {
     id: keyof Data
     label: string
     numeric: boolean
+    isCanSort?: boolean
+    align?: 'inherit' | 'left' | 'center' | 'right' | 'justify'
 }

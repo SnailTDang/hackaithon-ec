@@ -25,8 +25,8 @@ const theme = createTheme({
             paper: '#fff',
         },
         text: {
-            primary: '##264653', // dark blue-gray
-            secondary: '#6a4c93', // deep purple
+            primary: '#212529', // dark blue-gray
+            secondary: '#14213d', // deep purple
         },
     },
     typography: {

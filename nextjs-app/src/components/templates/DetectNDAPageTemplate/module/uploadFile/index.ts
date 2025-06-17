@@ -5,6 +5,7 @@ export async function uploadFile(
     contract: {
         file: File
         contractAnalystResults: { contractResult: any | null; checklistResult: any[] | null }
+        status: string
     },
     onSuccess: (msg: string) => void,
     onError: (msg: string) => void,
@@ -12,7 +13,6 @@ export async function uploadFile(
 ) {
     setUploading(true)
     onError('')
-    onSuccess('')
     try {
         const stringifychecklistResult = JSON.stringify(
             contract.contractAnalystResults.checklistResult,
@@ -40,8 +40,8 @@ export async function uploadFile(
                         contractResult: stringifyContractResult,
                         checklistResult: stringifychecklistResult,
                     },
+                    status: contract.status,
                 },
-                headers: { 'Content-Type': 'application/json' },
                 onSuccess,
                 onError,
                 setLoading: setUploading,

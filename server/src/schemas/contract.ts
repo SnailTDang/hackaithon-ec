@@ -13,7 +13,7 @@ export const fileSchema = z.object({
 export const contractSchema = z.object({
     contractName: z.string().min(1, 'contract name is required'),
     file: fileSchema,
-    hightlighted: z.string().min(0), // Optional or empty allowed
+    // hightlighted: z.string().min(0), // Optional or empty allowed
 })
 
 export type TFileInfo = z.infer<typeof fileSchema>

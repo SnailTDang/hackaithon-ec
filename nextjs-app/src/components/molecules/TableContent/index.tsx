@@ -6,16 +6,24 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
-import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
-import { Checkbox, TablePagination } from '@mui/material'
+import { Checkbox, IconButton, TablePagination, TableSortLabel, Tooltip } from '@mui/material'
+import DeleteIcon from '@mui/icons-material/Delete'
 import { useTableContent } from './modules/useTableContent'
 import { TableContentProps } from './types/index'
 
+import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined'
+import StatusLabel from './components/StatusLabel'
+import { formatDateTime } from '@/shared/utils/formatDatetime'
+import { useRouter } from 'next/router'
+
 const TableContent: React.FC<TableContentProps> = ({ contracts, pagination }) => {
     const {
+        sortBy,
+        sortOrder,
         headCells,
         selected,
+        handleSort,
         handleSelectAllClick,
         handleClick,
         handlePageChange,
@@ -24,6 +32,8 @@ const TableContent: React.FC<TableContentProps> = ({ contracts, pagination }) =>
 
     const numSelected = selected.length
     const rowCount = contracts.length
+
+    const router = useRouter()
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -42,15 +52,30 @@ const TableContent: React.FC<TableContentProps> = ({ contracts, pagination }) =>
                                     }}
                                 />
                             </TableCell>
-                            {headCells.map((headCell) => (
-                                <TableCell
-                                    key={headCell.id}
-                                    align={headCell.numeric ? 'right' : 'left'}
-                                    padding={headCell.disablePadding ? 'none' : 'normal'}
-                                >
-                                    {headCell.label}
-                                </TableCell>
-                            ))}
+                            {headCells.map((headCell) => {
+                                return (
+                                    <TableCell
+                                        key={headCell.id}
+                                        align={headCell.align}
+                                        padding={headCell.disablePadding ? 'none' : 'normal'}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        {headCell.isCanSort ? (
+                                            <TableSortLabel
+                                                active={sortBy === headCell.id}
+                                                direction={
+                                                    sortBy === headCell.id ? sortOrder : 'asc'
+                                                }
+                                                onClick={() => handleSort(headCell.id)}
+                                            >
+                                                {headCell.label}
+                                            </TableSortLabel>
+                                        ) : (
+                                            headCell.label
+                                        )}
+                                    </TableCell>
+                                )
+                            })}
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -62,15 +87,12 @@ const TableContent: React.FC<TableContentProps> = ({ contracts, pagination }) =>
                             </TableRow>
                         ) : (
                             contracts.map((contract, idx) => (
-                                <TableRow
-                                    key={contract._id}
-                                    hover
-                                    onClick={(event) => handleClick(event, contract._id)}
-                                >
+                                <TableRow key={contract._id} hover>
                                     <TableCell padding="checkbox">
                                         <Checkbox
                                             color="warning"
                                             checked={selected.includes(contract._id)}
+                                            onChange={(event) => handleClick(event, contract._id)}
                                             inputProps={{
                                                 'aria-labelledby': contract._id,
                                             }}
@@ -78,18 +100,37 @@ const TableContent: React.FC<TableContentProps> = ({ contracts, pagination }) =>
                                     </TableCell>
                                     <TableCell>{pagination.startIndex + idx}</TableCell>
                                     <TableCell>{contract.contractName}</TableCell>
-                                    <TableCell>
-                                        {new Date(contract.createdAt).toLocaleTimeString('vi-VN', {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                            second: '2-digit',
-                                        })}{' '}
-                                        {new Date(contract.createdAt).toLocaleDateString('vi-VN')}
-                                    </TableCell>
-                                    <TableCell>{contract.file.type}</TableCell>
-                                    <TableCell>{contract.file.originalname}</TableCell>
                                     <TableCell align="right">
                                         {(contract.file.size / 1024).toFixed(2)} KB
+                                    </TableCell>
+                                    <TableCell>{contract.file.type}</TableCell>
+                                    <TableCell>{formatDateTime(contract.updatedAt)}</TableCell>
+                                    <TableCell align="center">
+                                        <StatusLabel status={contract.status || 'draft'} />
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <Tooltip title="Read results this contract" placement="top">
+                                            <IconButton
+                                                aria-label="expand row"
+                                                size="large"
+                                                color="primary"
+                                                onClick={() => {
+                                                    router.push(`/analyst/${contract._id}`)
+                                                }}
+                                            >
+                                                <RemoveRedEyeOutlinedIcon />
+                                            </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title="Delete this contract" placement="top">
+                                            <IconButton
+                                                aria-label="expand row"
+                                                size="large"
+                                                color="error"
+                                                onClick={() => {}}
+                                            >
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </Tooltip>
                                     </TableCell>
                                 </TableRow>
                             ))

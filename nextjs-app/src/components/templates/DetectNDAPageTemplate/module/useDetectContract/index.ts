@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
 
 import {
@@ -21,6 +21,7 @@ type ChecklistRow = {
 }
 
 export type UseDetectContractReturn = {
+    isDetailPage?: boolean
     isProcessingDelivery: boolean
     deliveryContract: string
     tabResult: number
@@ -59,7 +60,6 @@ export type UseDetectContractReturn = {
     setUploadError: React.Dispatch<React.SetStateAction<string>>
     uploadSuccess: string
     setUploadSuccess: React.Dispatch<React.SetStateAction<string>>
-    handleUploadContract: (file: File) => void
     handleContractDrop: (file: File) => Promise<void>
     processContractText: () => void
     handleAnalyzeChecklist: () => Promise<void>
@@ -70,7 +70,16 @@ export type UseDetectContractReturn = {
     handleDownloadWordReport: () => void
 }
 
-export const useDetectContract = (): UseDetectContractReturn => {
+type UseDetectContractProps = {
+    isDetailPage?: boolean
+    contract: {
+        file: any
+        contractAnalystResults: any
+    }
+}
+
+export const useDetectContract = (props: UseDetectContractProps): UseDetectContractReturn => {
+    const { isDetailPage } = props
     const router = useRouter()
     const [contractFile, setContractFile] = useState<File | null>(null)
     const [lcmFile, setLcmFile] = useState<File | null>(null)
@@ -93,6 +102,31 @@ export const useDetectContract = (): UseDetectContractReturn => {
     const [checklistRows, setChecklistRows] = useState<any[][]>([])
     const [tabResult, setTabResult] = useState(0)
 
+    // Initialize state from props if available
+    // Parse contractAnalystResults only if present and valid
+    useEffect(() => {
+        const { contractAnalystResults, file } = props.contract || {}
+        console.log(file)
+        if (contractAnalystResults) {
+            let contractResultParsed: any[] | null = null
+            try {
+                contractResultParsed = contractAnalystResults.contractResult
+                    ? JSON.parse(contractAnalystResults.contractResult)
+                    : null
+            } catch {
+                contractResultParsed = null
+            }
+            // setContractFile(file)
+            if (Array.isArray(contractResultParsed)) {
+                setContractImportantText(contractResultParsed.slice(1, 10))
+                setDeliveryContract(contractResultParsed[0]?.content || '')
+            }
+            if (Array.isArray(contractAnalystResults.checklistResult)) {
+                setLcmChecklistResults(contractAnalystResults.checklistResult)
+            }
+        }
+    }, [props.contract])
+
     const handleChangeTab = (newValue: number) => {
         setTabResult(newValue)
     }
@@ -109,55 +143,25 @@ export const useDetectContract = (): UseDetectContractReturn => {
         setLcmChecklistResults([])
     }
 
-    const handleUploadContract = (file: File) => {
-        if (file) {
-            const data = {
-                file: file,
-                contractAnalystResults: {
-                    contractResult: contractImportantText || null,
-                    checklistResult: lcmChecklistResults.length ? lcmChecklistResults : null,
-                },
-            }
-
-            console.log(lcmChecklistResults)
-
-            console.log(file)
-            setContractFile(file)
-
-            setUploadError('')
-            setUploadSuccess('')
-            uploadFile(
-                data,
-                (msg) => {
-                    setUploadSuccess(msg)
-                    if (file.type.includes('image')) {
-                        extractTextFromImage(file, setContractText, () => {})
-                    } else if (file.type === 'application/pdf') {
-                        extractTextFromPdf(file, setContractText)
-                    } else if (file.name.endsWith('.docx')) {
-                        extractTextFromDocx(file, setContractText)
-                    }
-                },
-                (msg) => setUploadError(msg),
-                setIsProcessing,
-            )
-        }
-    }
-
     const handleSaveButton = () => {
         if (!contractFile) return
+        setIsProcessing(true)
         const data = {
             file: contractFile,
             contractAnalystResults: {
-                contractResult: contractImportantText || null,
+                contractResult: Array.isArray(contractImportantText)
+                    ? [{ title: 'Delivery', content: deliveryContract }, ...contractImportantText]
+                    : null,
                 checklistResult: lcmChecklistResults.length ? lcmChecklistResults : null,
             },
+            status: !contractImportantText || !lcmChecklistResults ? 'draft' : 'analyzed',
         }
 
         uploadFile(
             data,
             (msg) => {
                 setUploadSuccess(msg)
+                setIsProcessing(false)
                 router.push('/nda-manager')
             },
             (msg) => setUploadError(msg),
@@ -395,6 +399,7 @@ export const useDetectContract = (): UseDetectContractReturn => {
     }
 
     return {
+        isDetailPage,
         tabResult,
         contractFile,
         lcmFile,
@@ -421,7 +426,6 @@ export const useDetectContract = (): UseDetectContractReturn => {
         setPreviewDialog,
         setUploadError,
         setUploadSuccess,
-        handleUploadContract,
         handleContractDrop,
         processContractText,
         handleAnalyzeChecklist,

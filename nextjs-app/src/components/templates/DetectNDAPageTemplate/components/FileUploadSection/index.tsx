@@ -11,6 +11,7 @@ import DropzoneContract from '../DropzoneContract'
 import DropzoneLCM from '../DropzoneLCM'
 
 interface FileUploadSectionProps {
+    isDetailPage?: boolean
     contractFile: File | null
     lcmFile: File | null
     contractText: string
@@ -26,6 +27,7 @@ interface FileUploadSectionProps {
 }
 
 const FileUploadSection = ({
+    isDetailPage = false,
     contractFile,
     lcmFile,
     isProcessing,
@@ -54,7 +56,9 @@ const FileUploadSection = ({
     return (
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, mb: 4 }}>
             <Box sx={{ flex: 1, maxWidth: '50%' }}>
-                <DropzoneContract onDrop={onContractDrop} isProcessing={isProcessing} />
+                {!isDetailPage && (
+                    <DropzoneContract onDrop={onContractDrop} isProcessing={isProcessing} />
+                )}
                 {contractFile && (
                     <Box
                         sx={{
@@ -122,7 +126,7 @@ const FileUploadSection = ({
                 )}
             </Box>
             <Box sx={{ flex: 1, maxWidth: '50%' }}>
-                <DropzoneLCM onDrop={onLcmDrop} isProcessing={isProcessing} />
+                {!isDetailPage && <DropzoneLCM onDrop={onLcmDrop} isProcessing={isProcessing} />}
                 {lcmFile && (
                     <Box
                         sx={{

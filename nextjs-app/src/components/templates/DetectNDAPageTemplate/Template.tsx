@@ -9,6 +9,7 @@ import { UseDetectContractReturn } from './module/useDetectContract'
 
 const DetectContract = (props: UseDetectContractReturn) => {
     const {
+        isDetailPage,
         tabResult,
         contractFile,
         lcmFile,
@@ -64,6 +65,7 @@ const DetectContract = (props: UseDetectContractReturn) => {
                                     }
                                 })
                             }
+                            isDetailPage={isDetailPage}
                             isProcessing={isProcessing}
                             onAnalyseContract={processContractText}
                             handleAnalyzeChecklist={handleAnalyzeChecklist}
@@ -86,13 +88,11 @@ const DetectContract = (props: UseDetectContractReturn) => {
                                     sx={{ px: 2 }}
                                     size="medium"
                                     onClick={handleSaveButton}
-                                    disabled={
-                                        (!contractImportantText?.length &&
-                                            !lcmChecklistResults.length) ||
-                                        isProcessing
-                                    }
+                                    disabled={!contractFile || isProcessing}
                                 >
-                                    Save Analyst Results
+                                    {!contractImportantText || !lcmChecklistResults
+                                        ? 'Save Draft File'
+                                        : 'Save Analyst Results'}
                                 </Button>
                             </Box>
                         </Toolbar>

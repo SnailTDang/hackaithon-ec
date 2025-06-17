@@ -17,6 +17,7 @@ export interface IContract extends Document {
     createdAt?: Date
     updatedAt?: Date
     delFlg?: boolean
+    status?: string
 }
 
 export interface IContractAnalystResults {
@@ -65,6 +66,14 @@ const ContractSchema: Schema = new Schema(
         contractAnalystResults: {
             type: ContractAnalystResultsSchema,
             required: false,
+        },
+        status: {
+            type: String,
+            require: false,
+        },
+        delFlg: {
+            type: Boolean,
+            require: false,
         },
     },
     {
