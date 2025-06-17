@@ -282,7 +282,8 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, content }) => {
     useEffect(() => {
         if (!file && !content) return
         processFile(file)
-    }, [file])
+        setFileContent(content)
+    }, [file, content])
 
     return <Box>{renderPreview()}</Box>
 }

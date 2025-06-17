@@ -109,20 +109,26 @@ export const useDetectContract = (props: UseDetectContractProps): UseDetectContr
         console.log(file)
         if (contractAnalystResults) {
             let contractResultParsed: any[] | null = null
+            let checklistResultParsed: any[] | null = null
             try {
-                contractResultParsed = contractAnalystResults.contractResult
+                contractResultParsed = contractAnalystResults
                     ? JSON.parse(contractAnalystResults.contractResult)
+                    : null
+                checklistResultParsed = contractAnalystResults
+                    ? JSON.parse(contractAnalystResults.checklistResult)
                     : null
             } catch {
                 contractResultParsed = null
+                checklistResultParsed = null
             }
             // setContractFile(file)
             if (Array.isArray(contractResultParsed)) {
-                setContractImportantText(contractResultParsed.slice(1, 10))
+                console.log(contractResultParsed)
                 setDeliveryContract(contractResultParsed[0]?.content || '')
+                setContractImportantText(contractResultParsed.slice(1, 10))
             }
-            if (Array.isArray(contractAnalystResults.checklistResult)) {
-                setLcmChecklistResults(contractAnalystResults.checklistResult)
+            if (Array.isArray(checklistResultParsed)) {
+                setLcmChecklistResults(checklistResultParsed)
             }
         }
     }, [props.contract])
