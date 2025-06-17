@@ -105,6 +105,7 @@ export const useDetectContract = (props: UseDetectContractProps): UseDetectContr
     // Initialize state from props if available
     // Parse contractAnalystResults only if present and valid
     useEffect(() => {
+        if (!isDetailPage) return
         const { contractAnalystResults, file } = props.contract || {}
         console.log(file)
         if (contractAnalystResults) {
@@ -131,7 +132,7 @@ export const useDetectContract = (props: UseDetectContractProps): UseDetectContr
                 setLcmChecklistResults(checklistResultParsed)
             }
         }
-    }, [props.contract])
+    }, [props.contract, isDetailPage])
 
     const handleChangeTab = (newValue: number) => {
         setTabResult(newValue)
